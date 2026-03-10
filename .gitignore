@@ -1,0 +1,64 @@
+# Xcode
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.xcscmblueprint
+
+# SwiftPM
+/.build/
+/Packages
+Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Swift Package Manager (Xcode-integrated)
+.swiftpm/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Xcode Server
+xcschemes/
+
+# IDE Preferences
+*.pbxuser
+*.mode1v3
+*.mode2v3
+
+
+# User data
+*.swp
+*.swo
+.DS_Store
+
+
+# Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
+functions/.env
+
+GoogleService-Info.plist
