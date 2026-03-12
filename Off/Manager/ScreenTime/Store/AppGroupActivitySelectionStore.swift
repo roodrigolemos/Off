@@ -17,7 +17,7 @@ final class AppGroupActivitySelectionStore: ActivitySelectionStore {
     }
     
     func loadSelectedActivities() throws -> FamilyActivitySelection {
-        if let data = defaults.data(forKey: "screenTimeActivitySelection") {
+        if let data = defaults.data(forKey: AppGroupScreenTimeKeys.selection) {
             return try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
         }
 
@@ -26,6 +26,14 @@ final class AppGroupActivitySelectionStore: ActivitySelectionStore {
 
     func saveSelectedActivities(_ selection: FamilyActivitySelection) throws {
         let data = try PropertyListEncoder().encode(selection)
-        defaults.set(data, forKey: "screenTimeActivitySelection")
+        defaults.set(data, forKey: AppGroupScreenTimeKeys.selection)
+    }
+    
+    func loadActiveWeekdays() -> [Int]? {
+        defaults.array(forKey: AppGroupScreenTimeKeys.activeWeekdays) as? [Int]
+    }
+    
+    func saveActiveWeekdays(_ weekdays: [Int]) {
+        defaults.set(weekdays, forKey: AppGroupScreenTimeKeys.activeWeekdays)
     }
 }

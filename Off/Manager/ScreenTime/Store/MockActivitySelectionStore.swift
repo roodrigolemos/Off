@@ -10,8 +10,9 @@ import FamilyControls
 
 @MainActor
 final class MockActivitySelectionStore: ActivitySelectionStore {
-
+    
     private var selection: FamilyActivitySelection
+    private var weekDays: [Int]?
 
     init(selection: FamilyActivitySelection = FamilyActivitySelection()) {
         self.selection = selection
@@ -23,5 +24,13 @@ final class MockActivitySelectionStore: ActivitySelectionStore {
 
     func saveSelectedActivities(_ selection: FamilyActivitySelection) throws {
         self.selection = selection
+    }
+    
+    func loadActiveWeekdays() -> [Int]? {
+        weekDays
+    }
+    
+    func saveActiveWeekdays(_ weekdays: [Int]) {
+        self.weekDays = weekdays
     }
 }

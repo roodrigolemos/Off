@@ -65,6 +65,11 @@
 			path = OffDeviceActivityMonitorExtension;
 			sourceTree = "<group>";
 		};
+		B708CB312F631B5700260CEC /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				B708BF572F60AF9F00260CEC /* Off */,
+				B708CB312F631B5700260CEC /* Shared */,
 				B708C9CF2F60C64D00260CEC /* OffDeviceActivityMonitorExtension */,
 				B708C9CC2F60C64C00260CEC /* Frameworks */,
 				B708BF562F60AF9F00260CEC /* Products */,
@@ -132,6 +138,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B708BF572F60AF9F00260CEC /* Off */,
+				B708CB312F631B5700260CEC /* Shared */,
 			);
 			name = Off;
 			packageProductDependencies = (
@@ -154,6 +161,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B708C9CF2F60C64D00260CEC /* OffDeviceActivityMonitorExtension */,
+				B708CB312F631B5700260CEC /* Shared */,
 			);
 			name = OffDeviceActivityMonitorExtension;
 			packageProductDependencies = (

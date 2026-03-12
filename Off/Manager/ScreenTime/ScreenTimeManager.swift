@@ -100,7 +100,21 @@ extension ScreenTimeManager {
         startMonitoringLimit(limitMinutes: limitMinutes)
     }
     
-    func startMonitoringRange(start: DateComponents, end: DateComponents) {
+    func restartMonitoring(
+        rangeStart: DateComponents,
+        rangeEnd: DateComponents,
+        limitMinutes: Int
+    ) {
+        stopMonitoring()
+        startMonitoringRange(start: rangeStart, end: rangeEnd)
+        startMonitoringLimit(limitMinutes: limitMinutes)
+    }
+    
+    private func stopMonitoring() {
+        DeviceActivityCenter().stopMonitoring([.scheduleRange, .scheduleLimit])
+    }
+    
+    private func startMonitoringRange(start: DateComponents, end: DateComponents) {
         let schedule = DeviceActivitySchedule(
             intervalStart: start,
             intervalEnd: end,
@@ -114,7 +128,7 @@ extension ScreenTimeManager {
         }
     }
     
-    func startMonitoringLimit(limitMinutes: Int) {
+    private func startMonitoringLimit(limitMinutes: Int) {
         let schedule = DeviceActivitySchedule(
             intervalStart: DateComponents(hour: 0, minute: 0),
             intervalEnd: DateComponents(hour: 23, minute: 59),

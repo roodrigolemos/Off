@@ -20,23 +20,20 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
         
-        if activity.rawValue == "scheduleRange" {
-             setRangeActive(true)
-             refreshShieldState()
-         }
+        if activity == .scheduleRange {
+            setRangeActive(isTodayRestricted())
+            refreshShieldState()
+        }
 
-         if activity.rawValue == "scheduleLimit" {
-             // new day started for the limit monitor
-             // optional explicit reset:
-             clearLimitReachedDay()
-             refreshShieldState()
-         }
+        if activity == .scheduleLimit {
+            refreshShieldState()
+        }
     }
     
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
         
-        if activity.rawValue == "scheduleRange" {
+        if activity == .scheduleRange {
             setRangeActive(false)
             refreshShieldState()
         }
@@ -45,8 +42,10 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
         super.eventDidReachThreshold(event, activity: activity)
         
-        if activity.rawValue == "scheduleLimit", event.rawValue == "limit" {
-            setLimitReachedToday()
+        if activity == .scheduleLimit, event == .limit {
+            if isTodayRestricted() {
+                setLimitReachedToday()
+            }
             refreshShieldState()
         }
     }
@@ -64,54 +63,18 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     }
 }
 
-private enum ScreenTimeKeys {
-    static let selection = "screenTimeActivitySelection"
-    static let rangeActive = "screenTimeRangeActive"
-    static let limitReachedDay = "screenTimeLimitReachedDay"
-}
-
 // MARK: Helper Methods
 extension DeviceActivityMonitorExtension {
-    
-    private func todayIdentifier() -> String {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar.current
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
-    }
-    
-    private func isLimitReachedToday() -> Bool {
-        defaults.string(forKey: ScreenTimeKeys.limitReachedDay) == todayIdentifier()
-    }
-
-    private func setRangeActive(_ isActive: Bool) {
-        defaults.set(isActive, forKey: ScreenTimeKeys.rangeActive)
-    }
-
-    private func setLimitReachedToday() {
-        defaults.set(todayIdentifier(), forKey: ScreenTimeKeys.limitReachedDay)
-    }
-
-    private func clearLimitReachedDay() {
-        defaults.removeObject(forKey: ScreenTimeKeys.limitReachedDay)
-    }
-
-    private func loadSelection() throws -> FamilyActivitySelection {
-        guard let data = defaults.data(forKey: ScreenTimeKeys.selection) else {
-            return FamilyActivitySelection()
-        }
-        return try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
-    }
     
     private func refreshShieldState() {
         do {
             let selection = try loadSelection()
 
-            let rangeActive = defaults.bool(forKey: ScreenTimeKeys.rangeActive)
+            let todayRestricted = isTodayRestricted()
+            let rangeActive = defaults.bool(forKey: AppGroupScreenTimeKeys.rangeActive)
             let limitReached = isLimitReachedToday()
-            let shouldShield = rangeActive || limitReached
+            
+            let shouldShield = todayRestricted && (rangeActive || limitReached)
 
             if shouldShield {
                 store.shield.applications =
@@ -134,5 +97,45 @@ extension DeviceActivityMonitorExtension {
             store.shield.applicationCategories = nil
             store.shield.webDomains = nil
         }
+    }
+    
+    private func loadSelection() throws -> FamilyActivitySelection {
+        guard let data = defaults.data(forKey: AppGroupScreenTimeKeys.selection) else {
+            return FamilyActivitySelection()
+        }
+        return try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
+    }
+    
+    private func todayIdentifier() -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar.current
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
+    
+    private func isLimitReachedToday() -> Bool {
+        defaults.string(forKey: AppGroupScreenTimeKeys.limitReachedDay) == todayIdentifier()
+    }
+
+    private func setRangeActive(_ isActive: Bool) {
+        defaults.set(isActive, forKey: AppGroupScreenTimeKeys.rangeActive)
+    }
+
+    private func setLimitReachedToday() {
+        defaults.set(todayIdentifier(), forKey: AppGroupScreenTimeKeys.limitReachedDay)
+    }
+    
+    private func loadActiveWeekdays() -> [Int] {
+        defaults.array(forKey: AppGroupScreenTimeKeys.activeWeekdays) as? [Int] ?? []
+    }
+    
+    private func currentWeekday() -> Int {
+        Calendar.current.component(.weekday, from: Date())
+    }
+    
+    private func isTodayRestricted() -> Bool {
+        loadActiveWeekdays().contains(currentWeekday())
     }
 }

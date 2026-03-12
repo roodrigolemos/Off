@@ -8,7 +8,6 @@
 import DeviceActivity
 
 extension DeviceActivityName {
-    
     static let scheduleRange = Self("scheduleRange")
     static let scheduleLimit = Self("scheduleLimit")
 }

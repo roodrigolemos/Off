@@ -8,6 +8,5 @@
 import DeviceActivity
 
 extension DeviceActivityEvent.Name {
-    
     static let limit = Self("limit")
 }
