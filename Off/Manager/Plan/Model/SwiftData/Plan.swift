@@ -15,6 +15,7 @@ final class Plan {
     var name: String
     var timeBoundaryRaw: String
     var timeWindowsData: [[String: Int]]
+    var dailyAppLimit: Int
     var daysRaw: Int
     var lightSupportsRaw: [String]
 
@@ -26,6 +27,7 @@ final class Plan {
         self.timeWindowsData = snapshot.timeWindows.map { tw in
             ["sh": tw.startHour, "sm": tw.startMinute, "eh": tw.endHour, "em": tw.endMinute]
         }
+        self.dailyAppLimit = snapshot.dailyAppLimit
         self.daysRaw = snapshot.days.rawValue
         self.lightSupportsRaw = snapshot.lightSupports.map(\.rawValue)
     }
@@ -50,6 +52,7 @@ final class Plan {
             name: name,
             timeBoundary: timeBoundary,
             timeWindows: normalizedWindows,
+            dailyAppLimit: dailyAppLimit,
             days: DaysOfWeek(rawValue: daysRaw),
             lightSupports: lightSupports
         )

@@ -24,6 +24,7 @@ final class MockPlanStore: PlanStore {
                 name: "Focus Workdays",
                 timeBoundary: .always,
                 timeWindows: [],
+                dailyAppLimit: 60,
                 days: .weekdays,
                 lightSupports: []
             ),
@@ -33,6 +34,7 @@ final class MockPlanStore: PlanStore {
                 name: "Lunch Window",
                 timeBoundary: .duringWindows,
                 timeWindows: [PlanTimeWindowRules.defaultWindow],
+                dailyAppLimit: 30,
                 days: .everyday,
                 lightSupports: [.notificationsOff, .removeFromHomeScreen, .logOut]
             )

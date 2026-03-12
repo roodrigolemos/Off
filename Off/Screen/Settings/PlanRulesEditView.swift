@@ -14,6 +14,7 @@ struct PlanRulesEditView: View {
     @State private var planName = ""
     @State private var timeBoundary: TimeBoundary = .duringWindows
     @State private var timeWindows: [TimeWindowValue] = [PlanTimeWindowRules.defaultWindow]
+    @State private var dailyAppLimit: Int? = nil
     @State private var days: DaysOfWeek = .everyday
     @State private var lightSupports: Set<LightSupport> = []
     @State private var hasLoadedInitialState = false
@@ -27,6 +28,7 @@ struct PlanRulesEditView: View {
                     nameCard
                     lightSupportsCard
                     timeCard
+                    appLimitCard
                     daysCard
                     saveButton
                 }
@@ -44,6 +46,7 @@ struct PlanRulesEditView: View {
             timeBoundary = activePlan.timeBoundary
             timeWindows = activePlan.timeWindows
             normalizeTimeWindows()
+            dailyAppLimit = activePlan.dailyAppLimit
             days = activePlan.days
             lightSupports = activePlan.lightSupports
         }
@@ -90,7 +93,7 @@ private extension PlanRulesEditView {
         VStack(alignment: .leading, spacing: 14) {
             cardHeader(icon: "clock.fill",
                        title: "Schedule",
-                       subtitle: "When is social media blocked?")
+                       subtitle: "Required: choose when the plan runs")
 
             VStack(spacing: 10) {
                 timeOption(
@@ -118,6 +121,21 @@ private extension PlanRulesEditView {
                     description: "Block at any time",
                     selected: timeBoundary == .always
                 ) { timeBoundary = .always }
+            }
+        }
+        .modifier(PlanRulesCardStyle())
+    }
+
+    var appLimitCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(icon: "hourglass",
+                       title: "App Limit",
+                       subtitle: "Required: choose the daily usage limit")
+
+            VStack(spacing: 10) {
+                ForEach(PlanAppLimitRules.presetLimits, id: \.self) { limit in
+                    appLimitOption(limitMinutes: limit)
+                }
             }
         }
         .modifier(PlanRulesCardStyle())
@@ -303,6 +321,47 @@ private extension PlanRulesEditView {
         .buttonStyle(.plain)
     }
 
+    func appLimitOption(limitMinutes: Int) -> some View {
+        let selected = dailyAppLimit == limitMinutes
+        return Button {
+            dailyAppLimit = limitMinutes
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "hourglass")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(selected ? Color.offAccent : Color.offTextSecondary)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(PlanAppLimitRules.displayText(for: limitMinutes))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.offTextPrimary)
+
+                    Text("Daily limit for the selected apps")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.offTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(selected ? Color.offAccent : Color.offDotInactive)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(selected ? Color.offAccent.opacity(0.08) : Color.offBackgroundPrimary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(selected ? Color.offAccent : Color.offStroke, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
     func lightSupportOption(icon: String, label: String, description: String, isOn: Binding<Bool>) -> some View {
         Button {
             isOn.wrappedValue.toggle()
@@ -406,12 +465,14 @@ private extension PlanRulesEditView {
     }
 
     func saveRules() {
+        guard let dailyAppLimit else { return }
         let windows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary, timeWindows: timeWindows)
 
         planManager.updateRules(
             name: planName,
             timeBoundary: timeBoundary,
             timeWindows: windows,
+            dailyAppLimit: dailyAppLimit,
             days: days,
             lightSupports: lightSupports
         )
@@ -429,6 +490,7 @@ private extension PlanRulesEditView {
         !planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && days.dayCount >= 4
         && PlanTimeWindowRules.hasValidScheduledWindow(timeBoundary: timeBoundary, timeWindows: timeWindows)
+        && dailyAppLimit.map { PlanAppLimitRules.isValid(limitMinutes: $0) } == true
     }
 
     var scheduledWindowErrorText: String? {

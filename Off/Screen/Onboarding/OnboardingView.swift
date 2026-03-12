@@ -81,6 +81,7 @@ struct OnboardingView: View {
 
     private func completeOnboarding() {
         attributeManager.setInitialScores(ratings: onboardingManager.baselineRatings)
+        guard let dailyAppLimit = onboardingManager.dailyAppLimit else { return }
         let windows = PlanTimeWindowRules.normalized(
             timeBoundary: onboardingManager.timeBoundary,
             timeWindows: onboardingManager.timeWindows
@@ -89,6 +90,7 @@ struct OnboardingView: View {
             name: onboardingManager.planName,
             timeBoundary: onboardingManager.timeBoundary,
             timeWindows: windows,
+            dailyAppLimit: dailyAppLimit,
             days: onboardingManager.days,
             lightSupports: onboardingManager.lightSupports
         )

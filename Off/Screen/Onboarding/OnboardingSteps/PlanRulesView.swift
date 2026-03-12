@@ -12,6 +12,7 @@ struct PlanRulesView: View {
     @State private var planName: String = ""
     @State private var timeBoundary: TimeBoundary = .duringWindows
     @State private var timeWindows: [TimeWindowValue] = [PlanTimeWindowRules.defaultWindow]
+    @State private var dailyAppLimit: Int? = nil
     @State private var days: DaysOfWeek = .everyday
     @State private var lightSupports: Set<LightSupport> = []
     @State private var hasLoadedState = false
@@ -28,6 +29,7 @@ struct PlanRulesView: View {
                     nameCard
                     lightSupportsCard
                     timeCard
+                    appLimitCard
                     daysCard
                     ctaSection
                 }
@@ -42,6 +44,7 @@ struct PlanRulesView: View {
             timeBoundary = manager.timeBoundary
             timeWindows = manager.timeWindows
             normalizeTimeWindows()
+            dailyAppLimit = manager.dailyAppLimit
             days = manager.days
             lightSupports = manager.lightSupports
         }
@@ -96,7 +99,7 @@ private extension PlanRulesView {
         VStack(alignment: .leading, spacing: 14) {
             cardHeader(icon: "clock.fill",
                        title: "Schedule",
-                       subtitle: "When is social media blocked?")
+                       subtitle: "Required: choose when the plan runs")
 
             VStack(spacing: 10) {
                 timeOption(
@@ -124,6 +127,21 @@ private extension PlanRulesView {
                     description: "Block at any time",
                     selected: timeBoundary == .always
                 ) { timeBoundary = .always }
+            }
+        }
+        .modifier(RulesCardStyle())
+    }
+
+    var appLimitCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(icon: "hourglass",
+                       title: "App Limit",
+                       subtitle: "Required: choose the daily usage limit")
+
+            VStack(spacing: 10) {
+                ForEach(PlanAppLimitRules.presetLimits, id: \.self) { limit in
+                    appLimitOption(limitMinutes: limit)
+                }
             }
         }
         .modifier(RulesCardStyle())
@@ -170,11 +188,13 @@ private extension PlanRulesView {
 
     var ctaSection: some View {
         Button {
+            guard let dailyAppLimit else { return }
             let windows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary, timeWindows: timeWindows)
             manager.setPlanRules(
                 name: planName,
                 timeBoundary: timeBoundary,
                 timeWindows: windows,
+                dailyAppLimit: dailyAppLimit,
                 days: days,
                 lightSupports: lightSupports
             )
@@ -206,6 +226,7 @@ private extension PlanRulesView {
         !planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && days.dayCount >= 4
         && PlanTimeWindowRules.hasValidScheduledWindow(timeBoundary: timeBoundary, timeWindows: timeWindows)
+        && dailyAppLimit.map { PlanAppLimitRules.isValid(limitMinutes: $0) } == true
     }
 
     var scheduledWindowErrorText: String? {
@@ -305,6 +326,47 @@ private extension PlanRulesView {
                         .foregroundStyle(Color.offTextPrimary)
 
                     Text(description)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.offTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(selected ? Color.offAccent : Color.offDotInactive)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(selected ? Color.offAccent.opacity(0.08) : Color.offBackgroundPrimary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(selected ? Color.offAccent : Color.offStroke, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    func appLimitOption(limitMinutes: Int) -> some View {
+        let selected = dailyAppLimit == limitMinutes
+        return Button {
+            dailyAppLimit = limitMinutes
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "hourglass")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(selected ? Color.offAccent : Color.offTextSecondary)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(PlanAppLimitRules.displayText(for: limitMinutes))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.offTextPrimary)
+
+                    Text("Daily limit for the selected apps")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Color.offTextSecondary)
                 }

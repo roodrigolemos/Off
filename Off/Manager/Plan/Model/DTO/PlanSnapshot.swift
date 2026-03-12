@@ -12,16 +12,17 @@ struct PlanSnapshot: Equatable {
     let name: String
     let timeBoundary: TimeBoundary
     let timeWindows: [TimeWindowValue]
+    let dailyAppLimit: Int
     let days: DaysOfWeek
     let lightSupports: Set<LightSupport>
 
-    // Full initializer
     init(
         firstPlanCreatedAt: Date? = nil,
         createdAt: Date,
         name: String,
         timeBoundary: TimeBoundary,
         timeWindows: [TimeWindowValue],
+        dailyAppLimit: Int,
         days: DaysOfWeek,
         lightSupports: Set<LightSupport>
     ) {
@@ -31,6 +32,7 @@ struct PlanSnapshot: Equatable {
         self.name = name
         self.timeBoundary = timeBoundary
         self.timeWindows = normalizedWindows
+        self.dailyAppLimit = dailyAppLimit
         self.days = days
         self.lightSupports = Set(lightSupports.filter { LightSupport.allCases.contains($0) })
     }

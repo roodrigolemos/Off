@@ -47,10 +47,17 @@ final class PlanManager {
         name: String,
         timeBoundary: TimeBoundary,
         timeWindows: [TimeWindowValue],
+        dailyAppLimit: Int,
         days: DaysOfWeek,
         lightSupports: Set<LightSupport>
     ) {
-        guard validate(name: name, days: days) else { return }
+        guard validate(
+            name: name,
+            timeBoundary: timeBoundary,
+            timeWindows: timeWindows,
+            dailyAppLimit: dailyAppLimit,
+            days: days
+        ) else { return }
         let normalizedWindows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary, timeWindows: timeWindows)
 
         do {
@@ -61,6 +68,7 @@ final class PlanManager {
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 timeBoundary: timeBoundary,
                 timeWindows: normalizedWindows,
+                dailyAppLimit: dailyAppLimit,
                 days: days,
                 lightSupports: lightSupports
             )
@@ -75,6 +83,7 @@ final class PlanManager {
         name: String,
         timeBoundary: TimeBoundary,
         timeWindows: [TimeWindowValue],
+        dailyAppLimit: Int,
         days: DaysOfWeek,
         lightSupports: Set<LightSupport>
     ) {
@@ -84,6 +93,9 @@ final class PlanManager {
         }
         guard validate(
             name: name,
+            timeBoundary: timeBoundary,
+            timeWindows: timeWindows,
+            dailyAppLimit: dailyAppLimit,
             days: days
         ) else { return }
         let normalizedWindows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary, timeWindows: timeWindows)
@@ -95,6 +107,7 @@ final class PlanManager {
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 timeBoundary: timeBoundary,
                 timeWindows: normalizedWindows,
+                dailyAppLimit: dailyAppLimit,
                 days: days,
                 lightSupports: lightSupports
             )
@@ -105,16 +118,31 @@ final class PlanManager {
         }
     }
 
-    private func validate(name: String,days: DaysOfWeek) -> Bool {
+    private func validate(
+        name: String,
+        timeBoundary: TimeBoundary,
+        timeWindows: [TimeWindowValue],
+        dailyAppLimit: Int,
+        days: DaysOfWeek
+    ) -> Bool {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             error = .invalidPlanName
+            return false
+        }
+        guard PlanTimeWindowRules.hasValidScheduledWindow(timeBoundary: timeBoundary, timeWindows: timeWindows) else {
+            error = .invalidSchedule
+            return false
+        }
+        guard PlanAppLimitRules.isValid(limitMinutes: dailyAppLimit) else {
+            error = .invalidAppLimit
             return false
         }
         guard days.dayCount >= 4 else {
             error = .notEnoughDays
             return false
         }
+        error = nil
         return true
     }
 }

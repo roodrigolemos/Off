@@ -15,6 +15,7 @@ final class OnboardingManager {
     var planName: String = ""
     var timeBoundary: TimeBoundary = .duringWindows
     var timeWindows: [TimeWindowValue] = [PlanTimeWindowRules.defaultWindow]
+    var dailyAppLimit: Int? = nil
     var days: DaysOfWeek = .everyday
     var lightSupports: Set<LightSupport> = []
     var selectedMirrorCards: Set<Int> = []
@@ -31,6 +32,7 @@ final class OnboardingManager {
         name: String,
         timeBoundary: TimeBoundary,
         timeWindows: [TimeWindowValue],
+        dailyAppLimit: Int,
         days: DaysOfWeek,
         lightSupports: Set<LightSupport>
     ) {
@@ -38,6 +40,7 @@ final class OnboardingManager {
         self.planName = name
         self.timeBoundary = timeBoundary
         self.timeWindows = normalizedWindows
+        self.dailyAppLimit = dailyAppLimit
         self.days = days
         self.lightSupports = lightSupports
     }
