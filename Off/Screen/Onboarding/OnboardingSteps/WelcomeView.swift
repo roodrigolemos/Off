@@ -25,6 +25,10 @@ struct WelcomeView: View {
     }
 }
 
+#Preview {
+    WelcomeView(onNext: {})
+}
+
 // MARK: - Sections
 private extension WelcomeView {
 
@@ -73,8 +77,4 @@ private extension WelcomeView {
         .padding(.horizontal, 24)
         .padding(.bottom, 8)
     }
-}
-
-#Preview {
-    WelcomeView(onNext: {})
 }

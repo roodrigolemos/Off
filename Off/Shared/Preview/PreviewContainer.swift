@@ -9,6 +9,7 @@ import SwiftUI
 struct PreviewContainer {
 
     static let appState = AppState()
+    static let screenTimeManager = ScreenTimeManager(store: MockActivitySelectionStore())
     static let onboardingManager = OnboardingManager()
     static let bootstrapManager = BootstrapManager()
     static let statsManager = StatsManager()
@@ -35,6 +36,7 @@ extension View {
     func withPreviewManagers() -> some View {
         self
             .environment(PreviewContainer.appState)
+            .environment(PreviewContainer.screenTimeManager)
             .environment(PreviewContainer.onboardingManager)
             .environment(PreviewContainer.attributeManager)
             .environment(PreviewContainer.planManager)

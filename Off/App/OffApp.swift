@@ -19,6 +19,7 @@ struct OffApp: App {
     @Environment(\.scenePhase) var scenePhase
 
     @State private var appState: AppState
+    @State private var screenTimeManager: ScreenTimeManager
     @State private var onboardingManager: OnboardingManager
     @State private var attributeManager: AttributeManager
     @State private var planManager: PlanManager
@@ -30,6 +31,7 @@ struct OffApp: App {
 
     private let container: ModelContainer
     private let config: BuildConfiguration
+    private let userDefaults: UserDefaults
     private let swiftDataContainerName = "Off.store"
 
     init() {
@@ -40,6 +42,8 @@ struct OffApp: App {
         } catch {
             fatalError("Failed to configure SwiftData container.")
         }
+        
+        userDefaults = UserDefaults(suiteName: "group.appappnomi.Off") ?? .standard
 
         #if MOCK
         config = .mock
@@ -56,12 +60,16 @@ struct OffApp: App {
 
         switch config {
         case .mock:
+            _screenTimeManager = State(initialValue: ScreenTimeManager(store: MockActivitySelectionStore()))
             _attributeManager = State(initialValue: AttributeManager(store: MockAttributeStore()))
             _planManager = State(initialValue: PlanManager(store: MockPlanStore()))
             _checkInManager = State(initialValue: CheckInManager(store: MockCheckInStore()))
             _urgeManager = State(initialValue: UrgeManager(store: MockUrgeStore()))
             _insightManager = State(initialValue: InsightManager(store: MockInsightStore(), aiService: MockAIService()))
         case .dev, .prod:
+            _screenTimeManager = State(initialValue: ScreenTimeManager(
+                store: AppGroupActivitySelectionStore(defaults: userDefaults)
+            ))
             _attributeManager = State(initialValue: AttributeManager(
                 store: SwiftDataAttributeStore(context: container.mainContext)
             ))
@@ -86,6 +94,7 @@ struct OffApp: App {
             AppView()
                 .preferredColorScheme(.light)
                 .environment(appState)
+                .environment(screenTimeManager)
                 .environment(onboardingManager)
                 .environment(attributeManager)
                 .environment(planManager)
