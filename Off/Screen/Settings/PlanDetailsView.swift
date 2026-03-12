@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import FamilyControls
 
 struct PlanDetailsView: View {
 
@@ -12,8 +13,12 @@ struct PlanDetailsView: View {
     @Environment(UrgeManager.self) var urgeManager
     @Environment(InsightManager.self) var insightManager
     @Environment(StatsManager.self) var statsManager
+    @Environment(ScreenTimeManager.self) var screenTimeManager
 
     @State private var showRulesEditor = false
+    @State private var showActivityPicker = false
+    @State private var activitySelection = FamilyActivitySelection()
+    @State private var alertMessage: String?
 
     var body: some View {
         ZStack {
@@ -35,6 +40,30 @@ struct PlanDetailsView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Plan Details")
+        .familyActivityPicker(isPresented: $showActivityPicker, selection: $activitySelection)
+        .onAppear {
+            loadActivitySelection()
+        }
+        .onChange(of: showActivityPicker) { _, isPresented in
+            guard !isPresented else { return }
+            handlePickerDismissal()
+        }
+        .alert(
+            "Screen Time Apps",
+            isPresented: .init(
+                get: { alertMessage != nil },
+                set: { if !$0 { alertMessage = nil } }
+            ),
+            actions: {
+                Button("OK") {
+                    alertMessage = nil
+                    screenTimeManager.error = nil
+                }
+            },
+            message: {
+                Text(alertMessage ?? "")
+            }
+        )
         .fullScreenCover(isPresented: $showRulesEditor, onDismiss: refreshPlanState) {
             NavigationStack {
                 PlanRulesEditView(dismissFlow: $showRulesEditor)
@@ -57,12 +86,21 @@ struct PlanDetailsView: View {
 private extension PlanDetailsView {
 
     var editActionsSection: some View {
-        Button {
-            showRulesEditor = true
-        } label: {
-            editActionButton(title: "Edit Rules", icon: "slider.horizontal.3")
+        HStack(spacing: 10) {
+            Button {
+                showRulesEditor = true
+            } label: {
+                editActionButton(title: "Edit Rules", icon: "slider.horizontal.3")
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                showActivityPicker = true
+            } label: {
+                editActionButton(title: "Edit Apps", icon: "apps.iphone")
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     func headerSection(_ plan: PlanSnapshot) -> some View {
@@ -196,6 +234,32 @@ private extension PlanDetailsView {
 }
 
 private extension PlanDetailsView {
+
+    func loadActivitySelection() {
+        activitySelection = screenTimeManager.selectedActivities
+    }
+
+    func handlePickerDismissal() {
+        guard !showActivityPicker else { return }
+
+        let hasSelection =
+            !activitySelection.applicationTokens.isEmpty
+            || !activitySelection.categoryTokens.isEmpty
+            || !activitySelection.webDomainTokens.isEmpty
+
+        guard hasSelection else {
+            activitySelection = screenTimeManager.selectedActivities
+            alertMessage = "No app selected. Screen Time shielding needs at least one selected app, category, or website to work."
+            return
+        }
+
+        screenTimeManager.updateSelection(activitySelection)
+        syncAlertFromScreenTimeManager()
+    }
+
+    func syncAlertFromScreenTimeManager() {
+        alertMessage = screenTimeManager.error?.localizedDescription
+    }
 
     func refreshPlanState() {
         planManager.loadPlan()
