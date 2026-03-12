@@ -13,4 +13,5 @@ protocol ActivitySelectionStore {
     func saveSelectedActivities(_ selection: FamilyActivitySelection) throws
     func loadActiveWeekdays() -> [Int]?
     func saveActiveWeekdays(_ days: [Int])
+    func clearLimitReachedToday()
 }

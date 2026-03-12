@@ -47,6 +47,17 @@ struct PlanDetailsView: View {
         .onChange(of: showActivityPicker) { _, isPresented in
             guard !isPresented else { return }
             handlePickerDismissal()
+            
+            guard let plan = planManager.activePlan else { return }
+            let startHour = plan.timeWindows.first?.startHour
+            let startMinute = plan.timeWindows.first?.startMinute
+            let endHour = plan.timeWindows.first?.endHour
+            let endMinute = plan.timeWindows.first?.endMinute
+            let appsLimit = plan.dailyAppLimit
+            
+            screenTimeManager.restartMonitoring(rangeStart: DateComponents(hour: startHour, minute: startMinute),
+                                                rangeEnd: DateComponents(hour: endHour, minute: endMinute),
+                                                limitMinutes: appsLimit)
         }
         .alert(
             "Screen Time Apps",
@@ -64,7 +75,38 @@ struct PlanDetailsView: View {
                 Text(alertMessage ?? "")
             }
         )
-        .fullScreenCover(isPresented: $showRulesEditor, onDismiss: refreshPlanState) {
+        .fullScreenCover(isPresented: $showRulesEditor) {
+            refreshPlanState()
+            
+            guard let plan = planManager.activePlan else { return }
+            screenTimeManager.saveActiveDays(days: plan.days.selectedDays)
+            
+            if plan.timeBoundary == .always {
+                let startHour = 0
+                let startMinute = 0
+                let endHour = 23
+                let endMinute = 59
+                let appsLimit = plan.dailyAppLimit
+                
+                screenTimeManager.restartMonitoring(rangeStart: DateComponents(hour: startHour, minute: startMinute),
+                                                    rangeEnd: DateComponents(hour: endHour, minute: endMinute),
+                                                    limitMinutes: appsLimit)
+                print("start hour: \(startHour ?? 0), start minute: \(startMinute ?? 0), end hour: \(endHour ?? 0), end minute: \(endMinute ?? 0)")
+                print("app limit: \(appsLimit ?? 0)")
+            } else {
+                let startHour = plan.timeWindows.first?.startHour
+                let startMinute = plan.timeWindows.first?.startMinute
+                let endHour = plan.timeWindows.first?.endHour
+                let endMinute = plan.timeWindows.first?.endMinute
+                let appsLimit = plan.dailyAppLimit
+                
+                screenTimeManager.restartMonitoring(rangeStart: DateComponents(hour: startHour, minute: startMinute),
+                                                    rangeEnd: DateComponents(hour: endHour, minute: endMinute),
+                                                    limitMinutes: appsLimit)
+                print("start hour: \(startHour ?? 0), start minute: \(startMinute ?? 0), end hour: \(endHour ?? 0), end minute: \(endMinute ?? 0)")
+                print("app limit: \(appsLimit ?? 0)")
+            }
+        } content: {
             NavigationStack {
                 PlanRulesEditView(dismissFlow: $showRulesEditor)
                     .toolbar {
@@ -80,6 +122,7 @@ struct PlanDetailsView: View {
                     }
             }
         }
+
     }
 }
 

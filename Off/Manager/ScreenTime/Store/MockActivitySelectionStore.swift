@@ -33,4 +33,12 @@ final class MockActivitySelectionStore: ActivitySelectionStore {
     func saveActiveWeekdays(_ days: [Int]) {
         self.days = days
     }
+    
+    func clearLimitReachedToday() {
+        
+    }
+
+    func reconcileLimitReachedDay(activeWeekdays: [Int]) {
+        
+    }
 }

@@ -92,6 +92,10 @@ extension ScreenTimeManager {
     func saveActiveDays(days: [Int]) {
         store.saveActiveWeekdays(days)
     }
+    
+    func clearLimitReachedToday() {
+        store.clearLimitReachedToday()
+    }
 }
 
 // MARK: ActivitySchedule
@@ -110,6 +114,7 @@ extension ScreenTimeManager {
         limitMinutes: Int
     ) {
         stopMonitoring()
+        clearLimitReachedToday()
         startMonitoringRange(start: rangeStart, end: rangeEnd)
         startMonitoringLimit(limitMinutes: limitMinutes)
     }

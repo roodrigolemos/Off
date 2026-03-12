@@ -36,4 +36,11 @@ final class AppGroupActivitySelectionStore: ActivitySelectionStore {
     func saveActiveWeekdays(_ days: [Int]) {
         defaults.set(days, forKey: AppGroupScreenTimeKeys.activeWeekdays)
     }
+    
+    func clearLimitReachedToday() {
+        print("antes: \(defaults.string(forKey: AppGroupScreenTimeKeys.limitReachedDay))")
+    //        defaults.removeObject(forKey: AppGroupScreenTimeKeys.limitReachedDay)
+        defaults.set(nil, forKey: AppGroupScreenTimeKeys.limitReachedDay)
+        print("depois: \(defaults.string(forKey: AppGroupScreenTimeKeys.limitReachedDay))\n\n")
+    }
 }
