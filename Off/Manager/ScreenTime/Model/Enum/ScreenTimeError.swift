@@ -11,6 +11,7 @@ enum ScreenTimeError: Error, LocalizedError {
     case requestFailed
     case loadSelectedActivitiesFailed
     case saveSelectedActivitiesFailed
+    case saveActiveDaysFailed
 
     var errorDescription: String? {
         switch self {
@@ -20,6 +21,8 @@ enum ScreenTimeError: Error, LocalizedError {
             return "Could not load your selected apps."
         case .saveSelectedActivitiesFailed:
             return "Could not save your selected apps."
+        case .saveActiveDaysFailed:
+            return "Could not save active days."
         }
     }
 }

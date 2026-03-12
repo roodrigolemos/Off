@@ -5,6 +5,7 @@
 
 import Foundation
 import Observation
+import FamilyControls
 
 @MainActor
 @Observable
@@ -15,10 +16,11 @@ final class OnboardingManager {
     var planName: String = ""
     var timeBoundary: TimeBoundary = .duringWindows
     var timeWindows: [TimeWindowValue] = [PlanTimeWindowRules.defaultWindow]
-    var dailyAppLimit: Int? = nil
+    var dailyAppLimit: Int = 2
     var days: DaysOfWeek = .everyday
     var lightSupports: Set<LightSupport> = []
     var selectedMirrorCards: Set<Int> = []
+    var activitySelection = FamilyActivitySelection()
 
     func setBaselineRatings(_ ratings: [Attribute: Int]) {
         baselineRatings = ratings
@@ -26,6 +28,10 @@ final class OnboardingManager {
 
     func setSocialTime(_ time: String) {
         socialTime = time
+    }
+    
+    func setActivitySelection(_ selection: FamilyActivitySelection) {
+        activitySelection = selection
     }
 
     func setPlanRules(

@@ -29,9 +29,10 @@ enum OnboardingStep {
 struct OnboardingView: View {
 
     @Environment(AppState.self) var appState
+    @Environment(OnboardingManager.self) var onboardingManager
     @Environment(AttributeManager.self) var attributeManager
     @Environment(PlanManager.self) var planManager
-    @Environment(OnboardingManager.self) var onboardingManager
+    @Environment(ScreenTimeManager.self) var screenTimeManager
 
     @State private var currentStep: OnboardingStep = .welcome
 
@@ -81,7 +82,7 @@ struct OnboardingView: View {
 
     private func completeOnboarding() {
         attributeManager.setInitialScores(ratings: onboardingManager.baselineRatings)
-        guard let dailyAppLimit = onboardingManager.dailyAppLimit else { return }
+        
         let windows = PlanTimeWindowRules.normalized(
             timeBoundary: onboardingManager.timeBoundary,
             timeWindows: onboardingManager.timeWindows
@@ -90,10 +91,17 @@ struct OnboardingView: View {
             name: onboardingManager.planName,
             timeBoundary: onboardingManager.timeBoundary,
             timeWindows: windows,
-            dailyAppLimit: dailyAppLimit,
+            dailyAppLimit: onboardingManager.dailyAppLimit,
             days: onboardingManager.days,
             lightSupports: onboardingManager.lightSupports
         )
+        
+        screenTimeManager.saveActiveDays(days: onboardingManager.days.selectedDays)
+        screenTimeManager.updateSelection(onboardingManager.activitySelection)
+        
+        screenTimeManager.startMonitoring(rangeStart: DateComponents(hour: onboardingManager.timeWindows.first?.startHour, minute: onboardingManager.timeWindows.first?.startMinute),
+                                          rangeEnd: DateComponents(hour: onboardingManager.timeWindows.first?.endHour, minute: onboardingManager.timeWindows.first?.endMinute),
+                                          limitMinutes: onboardingManager.dailyAppLimit)
 
         appState.updateViewState(showTabBarView: true)
     }

@@ -12,7 +12,7 @@ struct PlanRulesView: View {
     @State private var planName: String = ""
     @State private var timeBoundary: TimeBoundary = .duringWindows
     @State private var timeWindows: [TimeWindowValue] = [PlanTimeWindowRules.defaultWindow]
-    @State private var dailyAppLimit: Int? = nil
+    @State private var dailyAppLimit: Int = 2
     @State private var days: DaysOfWeek = .everyday
     @State private var lightSupports: Set<LightSupport> = []
     @State private var hasLoadedState = false
@@ -188,8 +188,8 @@ private extension PlanRulesView {
 
     var ctaSection: some View {
         Button {
-            guard let dailyAppLimit else { return }
-            let windows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary, timeWindows: timeWindows)
+            let windows = PlanTimeWindowRules.normalized(timeBoundary: timeBoundary,
+                                                         timeWindows: timeWindows)
             manager.setPlanRules(
                 name: planName,
                 timeBoundary: timeBoundary,
@@ -226,7 +226,7 @@ private extension PlanRulesView {
         !planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && days.dayCount >= 4
         && PlanTimeWindowRules.hasValidScheduledWindow(timeBoundary: timeBoundary, timeWindows: timeWindows)
-        && dailyAppLimit.map { PlanAppLimitRules.isValid(limitMinutes: $0) } == true
+        && PlanAppLimitRules.isValid(limitMinutes: dailyAppLimit) == true
     }
 
     var scheduledWindowErrorText: String? {

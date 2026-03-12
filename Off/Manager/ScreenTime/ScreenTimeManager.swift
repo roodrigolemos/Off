@@ -88,6 +88,10 @@ extension ScreenTimeManager {
             self.error = .saveSelectedActivitiesFailed
         }
     }
+    
+    func saveActiveDays(days: [Int]) {
+        store.saveActiveWeekdays(days)
+    }
 }
 
 // MARK: ActivitySchedule

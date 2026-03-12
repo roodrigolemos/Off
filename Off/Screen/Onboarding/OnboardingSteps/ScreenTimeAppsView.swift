@@ -10,6 +10,7 @@ import FamilyControls
 
 struct ScreenTimeAppsView: View {
 
+    @Environment(OnboardingManager.self) var onboardingManager
     @Environment(ScreenTimeManager.self) var screenTimeManager
 
     var onNext: () -> Void
@@ -33,11 +34,13 @@ struct ScreenTimeAppsView: View {
         .onChange(of: showActivityPicker) { _, isPresented in
             guard !isPresented else { return }
             handlePickerDismissal()
-            screenTimeManager.startMonitoring(rangeStart: DateComponents(hour: 10, minute: 30),
-                                              rangeEnd: DateComponents(hour: 10, minute: 46),
-                                              limitMinutes: 2)
         }
     }
+}
+
+#Preview {
+    ScreenTimeAppsView(onNext: {})
+        .withPreviewManagers()
 }
 
 // MARK: - Sections
@@ -127,14 +130,12 @@ private extension ScreenTimeAppsView {
     }
 
     func handlePickerDismissal() {
-        screenTimeManager.updateSelection(activitySelection)
-
-        guard screenTimeManager.hasSelectedActivity else { return }
+        onboardingManager.setActivitySelection(activitySelection)
+        
+        guard !activitySelection.applicationTokens.isEmpty
+        || !activitySelection.categoryTokens.isEmpty
+        || !activitySelection.webDomainTokens.isEmpty else { return }
+        
         onNext()
     }
-}
-
-#Preview {
-    ScreenTimeAppsView(onNext: {})
-        .withPreviewManagers()
 }

@@ -33,7 +33,7 @@ final class AppGroupActivitySelectionStore: ActivitySelectionStore {
         defaults.array(forKey: AppGroupScreenTimeKeys.activeWeekdays) as? [Int]
     }
     
-    func saveActiveWeekdays(_ weekdays: [Int]) {
-        defaults.set(weekdays, forKey: AppGroupScreenTimeKeys.activeWeekdays)
+    func saveActiveWeekdays(_ days: [Int]) {
+        defaults.set(days, forKey: AppGroupScreenTimeKeys.activeWeekdays)
     }
 }

@@ -12,5 +12,5 @@ protocol ActivitySelectionStore {
     func loadSelectedActivities() throws -> FamilyActivitySelection
     func saveSelectedActivities(_ selection: FamilyActivitySelection) throws
     func loadActiveWeekdays() -> [Int]?
-    func saveActiveWeekdays(_ weekdays: [Int])
+    func saveActiveWeekdays(_ days: [Int])
 }

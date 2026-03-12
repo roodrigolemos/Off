@@ -8,6 +8,7 @@
 import Foundation
 
 enum PlanTimeWindowRules {
+    
     static let defaultWindow = TimeWindowValue(
         startHour: 9,
         startMinute: 0,
