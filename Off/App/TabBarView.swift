@@ -15,6 +15,7 @@ struct TabBarView: View {
     private enum Tab: Hashable {
         case home
         case insights
+        case usage
         case settings
     }
 
@@ -25,11 +26,19 @@ struct TabBarView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
+
             InsightsView()
                 .tag(Tab.insights)
                 .tabItem {
                     Label("Insights", systemImage: "sparkles")
                 }
+
+            UsageView()
+                .tag(Tab.usage)
+                .tabItem {
+                    Label("Usage", systemImage: "clock.fill")
+                }
+
             SettingsView()
                 .tag(Tab.settings)
                 .tabItem {
