@@ -20,12 +20,18 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
         
+        print("📍 intervalDidStart fired - activity: \(activity.rawValue)")
+        
         if activity == .scheduleRange {
+            print("➡️ scheduleRange started")
+            print("today restricted: \(isTodayRestricted())")
+            
             setRangeActive(isTodayRestricted())
             refreshShieldState()
         }
 
         if activity == .scheduleLimit {
+            print("➡️ scheduleLimit started")
             refreshShieldState()
         }
     }
@@ -33,7 +39,10 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
         
+        print("📍 intervalDidEnd fired - activity: \(activity.rawValue)")
+        
         if activity == .scheduleRange {
+            print("➡️ scheduleRange ended")
             setRangeActive(false)
             refreshShieldState()
         }
@@ -42,24 +51,36 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
         super.eventDidReachThreshold(event, activity: activity)
         
+        print("📍 eventDidReachThreshold fired - activity: \(activity.rawValue), event: \(event.rawValue)")
+        
         if activity == .scheduleLimit, event == .limit {
+            print("➡️ matched scheduleLimit + limit")
+            print("today restricted: \(isTodayRestricted())")
+            
             if isTodayRestricted() {
+                print("✅ setting limit reached today")
                 setLimitReachedToday()
+            } else {
+                print("⛔️ not restricted today, not setting limit reached")
             }
+            
             refreshShieldState()
         }
     }
     
     override func intervalWillStartWarning(for activity: DeviceActivityName) {
         super.intervalWillStartWarning(for: activity)
+        print("⚠️ intervalWillStartWarning - activity: \(activity.rawValue)")
     }
     
     override func intervalWillEndWarning(for activity: DeviceActivityName) {
         super.intervalWillEndWarning(for: activity)
+        print("⚠️ intervalWillEndWarning - activity: \(activity.rawValue)")
     }
     
     override func eventWillReachThresholdWarning(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
         super.eventWillReachThresholdWarning(event, activity: activity)
+        print("⚠️ eventWillReachThresholdWarning - activity: \(activity.rawValue), event: \(event.rawValue)")
     }
 }
 

@@ -21,6 +21,7 @@ struct PreviewContainer {
 
     static func bootstrap() {
         bootstrapManager.bootstrap(
+            screenTimeManager: screenTimeManager,
             planManager: planManager,
             checkInManager: checkInManager,
             attributeManager: attributeManager,

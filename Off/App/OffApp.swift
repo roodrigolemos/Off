@@ -105,6 +105,7 @@ struct OffApp: App {
                 .environment(bootstrapManager)
                 .task {
                     bootstrapManager.bootstrap(
+                        screenTimeManager: screenTimeManager,
                         planManager: planManager,
                         checkInManager: checkInManager,
                         attributeManager: attributeManager,

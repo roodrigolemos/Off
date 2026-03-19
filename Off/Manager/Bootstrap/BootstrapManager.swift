@@ -11,6 +11,7 @@ import Observation
 final class BootstrapManager {
 
     func bootstrap(
+        screenTimeManager: ScreenTimeManager,
         planManager: PlanManager,
         checkInManager: CheckInManager,
         attributeManager: AttributeManager,
@@ -18,6 +19,7 @@ final class BootstrapManager {
         urgeManager: UrgeManager,
         statsManager: StatsManager
     ) {
+        screenTimeManager.loadSelection()
         planManager.loadPlan()
         attributeManager.loadScores()
         checkInManager.loadCheckIns()
