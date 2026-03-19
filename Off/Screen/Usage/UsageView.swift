@@ -73,7 +73,7 @@ private extension UsageView {
 
     var usageReportSection: some View {
         DeviceActivityReport(.usageReport, filter: todayFilter)
-            .frame(maxWidth: .infinity, minHeight: 220, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 460, alignment: .topLeading)
             .padding(.horizontal, 24)
     }
 
