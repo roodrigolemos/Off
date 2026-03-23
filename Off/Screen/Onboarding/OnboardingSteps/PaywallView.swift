@@ -350,12 +350,10 @@ private struct ResultMetric {
 }
 
 private let metrics: [ResultMetric] = [
-    ResultMetric(icon: "brain.head.profile", title: "Clarity", description: "Less mental \nfog"),
     ResultMetric(icon: "scope", title: "Focus", description: "Easier to \nhold focus"),
-    ResultMetric(icon: "bolt.fill", title: "Energy", description: "More steady \nenergy"),
-    ResultMetric(icon: "flag.checkered", title: "Drive", description: "Less resistance \nto start"),
     ResultMetric(icon: "hand.raised.slash.fill", title: "Control", description: "More intentional \nuse"),
-    ResultMetric(icon: "hourglass", title: "Patience", description: "Less urgency, \nmore calm"),
+    ResultMetric(icon: "flag.checkered", title: "Action", description: "Less friction \nto act"),
+    ResultMetric(icon: "bolt.fill", title: "Energy", description: "More steady \nenergy"),
 ]
 
 
@@ -363,6 +361,6 @@ private let metrics: [ResultMetric] = [
     PaywallView(
         onNext: {},
         daysPerYear: 47,
-        outcomeSummary: "more clarity, sharper focus, steadier energy"
+        outcomeSummary: "sharper focus, more intention, steadier energy"
     )
 }

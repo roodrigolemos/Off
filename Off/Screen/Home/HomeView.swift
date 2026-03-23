@@ -869,20 +869,16 @@ private extension HomeView {
             }
         }
 
-        let clarity = attributeArrowColor(checkIn.clarity)
         let focus = attributeArrowColor(checkIn.focus)
-        let energy = attributeArrowColor(checkIn.energy)
-        let drive = attributeArrowColor(checkIn.drive)
         let control = controlArrowColor(checkIn.control)
-        let patience = attributeArrowColor(checkIn.patience)
+        let action = attributeArrowColor(checkIn.action)
+        let energy = attributeArrowColor(checkIn.energy)
 
         return [
-            ("brain.head.profile", clarity.0, clarity.1),
             ("scope", focus.0, focus.1),
-            ("bolt.fill", energy.0, energy.1),
-            ("flag.checkered", drive.0, drive.1),
             ("hand.raised.slash.fill", control.0, control.1),
-            ("hourglass", patience.0, patience.1)
+            ("flag.checkered", action.0, action.1),
+            ("bolt.fill", energy.0, energy.1)
         ]
     }
 

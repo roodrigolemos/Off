@@ -9,12 +9,10 @@ struct CheckInSnapshot: Identifiable, Equatable {
     
     let id: UUID
     let date: Date
-    let clarity: AttributeRating
     let focus: AttributeRating
-    let energy: AttributeRating
-    let drive: AttributeRating
-    let patience: AttributeRating
     let control: ControlRating
+    let action: AttributeRating
+    let energy: AttributeRating
     let urgeLevel: UrgeLevel
     let planAdherence: PlanAdherence?
     let wasPlanDay: Bool
@@ -22,24 +20,20 @@ struct CheckInSnapshot: Identifiable, Equatable {
     init(
         id: UUID = UUID(),
         date: Date = .now,
-        clarity: AttributeRating,
         focus: AttributeRating,
-        energy: AttributeRating,
-        drive: AttributeRating,
-        patience: AttributeRating,
         control: ControlRating,
+        action: AttributeRating,
+        energy: AttributeRating,
         urgeLevel: UrgeLevel,
         planAdherence: PlanAdherence?,
         wasPlanDay: Bool
     ) {
         self.id = id
         self.date = date
-        self.clarity = clarity
         self.focus = focus
-        self.energy = energy
-        self.drive = drive
-        self.patience = patience
         self.control = control
+        self.action = action
+        self.energy = energy
         self.urgeLevel = urgeLevel
         self.planAdherence = planAdherence
         self.wasPlanDay = wasPlanDay
@@ -50,12 +44,10 @@ extension CheckInSnapshot {
 
     static let sample = CheckInSnapshot(
         date: .now,
-        clarity: .better,
         focus: .same,
-        energy: .better,
-        drive: .same,
-        patience: .worse,
         control: .conscious,
+        action: .same,
+        energy: .better,
         urgeLevel: .noticeable,
         planAdherence: .yes,
         wasPlanDay: true

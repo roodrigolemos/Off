@@ -26,27 +26,47 @@ final class MockCheckInStore: CheckInStore {
             let snapshot: CheckInSnapshot = switch daysAgo {
             case 1:
                 CheckInSnapshot(
-                    date: date, clarity: .better, focus: .better,
-                    energy: .same, drive: .better, patience: .better,
-                    control: .conscious, urgeLevel: .noticeable, planAdherence: adherence, wasPlanDay: wasPlanDay
+                    date: date,
+                    focus: .better,
+                    control: .conscious,
+                    action: .better,
+                    energy: .same,
+                    urgeLevel: .noticeable,
+                    planAdherence: adherence,
+                    wasPlanDay: wasPlanDay
                 )
             case 2:
                 CheckInSnapshot(
-                    date: date, clarity: .same, focus: .worse,
-                    energy: .better, drive: .same, patience: .same,
-                    control: .same, urgeLevel: .none, planAdherence: adherence, wasPlanDay: wasPlanDay
+                    date: date,
+                    focus: .worse,
+                    control: .same,
+                    action: .same,
+                    energy: .better,
+                    urgeLevel: .none,
+                    planAdherence: adherence,
+                    wasPlanDay: wasPlanDay
                 )
             case 4:
                 CheckInSnapshot(
-                    date: date, clarity: .worse, focus: .same,
-                    energy: .worse, drive: .worse, patience: .same,
-                    control: .automatic, urgeLevel: .persistent, planAdherence: adherence, wasPlanDay: wasPlanDay
+                    date: date,
+                    focus: .same,
+                    control: .automatic,
+                    action: .worse,
+                    energy: .worse,
+                    urgeLevel: .persistent,
+                    planAdherence: adherence,
+                    wasPlanDay: wasPlanDay
                 )
             default:
                 CheckInSnapshot(
-                    date: date, clarity: .better, focus: .better,
-                    energy: .better, drive: .better, patience: .better,
-                    control: .conscious, urgeLevel: .none, planAdherence: adherence, wasPlanDay: wasPlanDay
+                    date: date,
+                    focus: .better,
+                    control: .conscious,
+                    action: .better,
+                    energy: .better,
+                    urgeLevel: .none,
+                    planAdherence: adherence,
+                    wasPlanDay: wasPlanDay
                 )
             }
 

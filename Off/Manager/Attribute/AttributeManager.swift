@@ -248,12 +248,10 @@ final class AttributeManager {
 
         for checkIn in checkIns {
             let value: Int = switch attribute {
-            case .clarity: checkIn.clarity.rawValue
             case .focus: checkIn.focus.rawValue
-            case .energy: checkIn.energy.rawValue
-            case .drive: checkIn.drive.rawValue
             case .control: checkIn.control.rawValue
-            case .patience: checkIn.patience.rawValue
+            case .action: checkIn.action.rawValue
+            case .energy: checkIn.energy.rawValue
             }
 
             if value > 0 { better += 1 }

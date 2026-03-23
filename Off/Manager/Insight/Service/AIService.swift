@@ -21,12 +21,10 @@ struct WeeklyInsightData: Encodable {
 
 struct CheckInDataPoint: Encodable {
     let date: String
-    let clarity: Int
     let focus: Int
-    let energy: Int
-    let drive: Int
-    let patience: Int
     let control: Int
+    let action: Int
+    let energy: Int
     let urgeLevel: Int
     let planAdherence: Int?
 }

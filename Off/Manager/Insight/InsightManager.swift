@@ -225,12 +225,10 @@ final class InsightManager {
     private func toDataPoint(_ checkIn: CheckInSnapshot, formatter: DateFormatter) -> CheckInDataPoint {
         CheckInDataPoint(
             date: formatter.string(from: checkIn.date),
-            clarity: checkIn.clarity.rawValue,
             focus: checkIn.focus.rawValue,
-            energy: checkIn.energy.rawValue,
-            drive: checkIn.drive.rawValue,
-            patience: checkIn.patience.rawValue,
             control: checkIn.control.rawValue,
+            action: checkIn.action.rawValue,
+            energy: checkIn.energy.rawValue,
             urgeLevel: checkIn.urgeLevel.rawValue,
             planAdherence: checkIn.planAdherence?.rawValue
         )

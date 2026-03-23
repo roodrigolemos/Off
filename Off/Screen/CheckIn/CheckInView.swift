@@ -13,12 +13,10 @@ struct CheckInView: View {
     @Environment(CheckInManager.self) var checkInManager
     @Environment(PlanManager.self) var planManager
 
-    @State private var clarity: AttributeRating?
     @State private var focus: AttributeRating?
-    @State private var energy: AttributeRating?
-    @State private var drive: AttributeRating?
-    @State private var patience: AttributeRating?
     @State private var control: ControlRating?
+    @State private var action: AttributeRating?
+    @State private var energy: AttributeRating?
     @State private var urgeLevel: UrgeLevel?
     @State private var planAdherence: PlanAdherence?
 
@@ -116,31 +114,10 @@ private extension CheckInView {
 
             VStack(spacing: 12) {
                 attributeCard(
-                    icon: "brain.head.profile",
-                    title: "Clarity",
-                    subtitle: "Your mind feels",
-                    selection: $clarity,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
-                )
-                attributeCard(
                     icon: "scope",
                     title: "Focus",
                     subtitle: "Sustaining attention feels",
                     selection: $focus,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
-                )
-                attributeCard(
-                    icon: "bolt.fill",
-                    title: "Energy",
-                    subtitle: "Your mental energy feels",
-                    selection: $energy,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
-                )
-                attributeCard(
-                    icon: "flag.checkered",
-                    title: "Drive",
-                    subtitle: "Starting things feels",
-                    selection: $drive,
                     labels: [.worse: "Worse", .same: "Same", .better: "Better"]
                 )
                 attributeCard(
@@ -151,10 +128,17 @@ private extension CheckInView {
                     labels: [.automatic: "Automatic", .same: "Same", .conscious: "Conscious"]
                 )
                 attributeCard(
-                    icon: "hourglass",
-                    title: "Patience",
-                    subtitle: "Your tolerance for boredom feels",
-                    selection: $patience,
+                    icon: "flag.checkered",
+                    title: "Action",
+                    subtitle: "Taking action feels",
+                    selection: $action,
+                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
+                )
+                attributeCard(
+                    icon: "bolt.fill",
+                    title: "Energy",
+                    subtitle: "Your mental energy feels",
+                    selection: $energy,
                     labels: [.worse: "Worse", .same: "Same", .better: "Better"]
                 )
             }
@@ -201,16 +185,13 @@ private extension CheckInView {
 
     var submitSection: some View {
         Button {
-            guard let clarity, let focus, let energy, let drive,
-                  let patience, let control, let urgeLevel else { return }
+            guard let focus, let control, let action, let energy, let urgeLevel else { return }
 
             let snapshot = CheckInSnapshot(
-                clarity: clarity,
                 focus: focus,
-                energy: energy,
-                drive: drive,
-                patience: patience,
                 control: control,
+                action: action,
+                energy: energy,
                 urgeLevel: urgeLevel,
                 planAdherence: planAdherence,
                 wasPlanDay: isPlanDay
@@ -334,12 +315,10 @@ private extension CheckInView {
     }
 
     var allAnswered: Bool {
-        clarity != nil
-        && focus != nil
-        && energy != nil
-        && drive != nil
-        && patience != nil
+        focus != nil
         && control != nil
+        && action != nil
+        && energy != nil
         && urgeLevel != nil
         && (!isPlanDay || planAdherence != nil)
     }

@@ -73,35 +73,31 @@ final class OnboardingManager {
 
     var baselineSummary: String {
         let phrases: [Attribute: String] = [
-            .clarity: "your clarity foggy",
             .focus: "your focus low",
-            .energy: "your energy drained",
-            .drive: "your drive fading",
             .control: "your control slipping",
-            .patience: "your patience thin"
+            .action: "your action stalled",
+            .energy: "your energy drained",
         ]
         let worst = baselineRatings
             .sorted { $0.value < $1.value }
             .prefix(2)
             .compactMap { phrases[$0.key] }
-        guard !worst.isEmpty else { return "your clarity foggy, your focus low" }
+        guard !worst.isEmpty else { return "your focus low, your action stalled" }
         return worst.joined(separator: ", ")
     }
 
     var outcomeSummary: String {
         let phrases: [Attribute: String] = [
-            .clarity: "more clarity",
             .focus: "sharper focus",
-            .energy: "steadier energy",
-            .drive: "less resistance",
             .control: "more intention",
-            .patience: "more calm"
+            .action: "more follow-through",
+            .energy: "steadier energy",
         ]
         let worst = baselineRatings
             .sorted { $0.value < $1.value }
             .prefix(3)
             .compactMap { phrases[$0.key] }
-        guard !worst.isEmpty else { return "more clarity, sharper focus, steadier energy" }
+        guard !worst.isEmpty else { return "sharper focus, more intention, steadier energy" }
         return worst.joined(separator: ", ")
     }
 
@@ -162,19 +158,19 @@ final class OnboardingManager {
     func projectedDelta(for attribute: Attribute) -> Int {
         let baseline = baselineRatings[attribute] ?? 3
         switch attribute {
+        case .focus:
+            switch baseline {
+            case 1...2: return 2
+            case 3...4: return 1
+            default:    return 0
+            }
         case .control:
             switch baseline {
             case 1...3: return 2
             case 4:     return 1
             default:    return 0
             }
-        case .clarity, .focus:
-            switch baseline {
-            case 1...2: return 2
-            case 3...4: return 1
-            default:    return 0
-            }
-        case .energy, .drive, .patience:
+        case .action, .energy:
             switch baseline {
             case 1...4: return 1
             default:    return 0

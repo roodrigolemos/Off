@@ -79,7 +79,7 @@ private extension SocialImpactView {
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(Color.offTextPrimary)
 
-            Text("In **5 years**, that's **\(manager.daysPerYear * 5) days** — almost a full year spent scrolling. The fog, the restlessness, the lack of drive — they don't fix themselves. Tolerance builds, and the same content gives less back each time.")
+            Text("In **5 years**, that's **\(manager.daysPerYear * 5) days** — almost a full year spent scrolling. The scattered focus, the low energy, the stalled action — they don't fix themselves. Tolerance builds, and the same content gives less back each time.")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(Color.offTextSecondary)
                 .lineSpacing(3)
