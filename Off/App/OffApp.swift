@@ -27,6 +27,7 @@ struct OffApp: App {
     @State private var urgeManager: UrgeManager
     @State private var insightManager: InsightManager
     @State private var statsManager: StatsManager
+    @State private var usageManager: UsageManager
     @State private var bootstrapManager: BootstrapManager
 
     private let container: ModelContainer
@@ -56,6 +57,7 @@ struct OffApp: App {
         _appState = State(initialValue: AppState())
         _onboardingManager = State(initialValue: OnboardingManager())
         _statsManager = State(initialValue: StatsManager())
+        _usageManager = State(initialValue: UsageManager())
         _bootstrapManager = State(initialValue: BootstrapManager())
 
         switch config {
@@ -102,10 +104,12 @@ struct OffApp: App {
                 .environment(urgeManager)
                 .environment(insightManager)
                 .environment(statsManager)
+                .environment(usageManager)
                 .environment(bootstrapManager)
                 .task {
                     bootstrapManager.bootstrap(
                         screenTimeManager: screenTimeManager,
+                        usageManager: usageManager,
                         planManager: planManager,
                         checkInManager: checkInManager,
                         attributeManager: attributeManager,
@@ -117,6 +121,8 @@ struct OffApp: App {
                 .onChange(of: scenePhase) { _, newPhase in
                     guard newPhase == .active else { return }
                     bootstrapManager.refresh(
+                        screenTimeManager: screenTimeManager,
+                        usageManager: usageManager,
                         planManager: planManager,
                         checkInManager: checkInManager,
                         attributeManager: attributeManager,
@@ -124,6 +130,12 @@ struct OffApp: App {
                         urgeManager: urgeManager,
                         statsManager: statsManager
                     )
+                }
+                .onChange(of: screenTimeManager.selectionDigest) { _, _ in
+                    usageManager.recalculate(trackingState: screenTimeManager.usageTrackingState)
+                }
+                .onChange(of: screenTimeManager.authorizationStatus) { _, _ in
+                    usageManager.recalculate(trackingState: screenTimeManager.usageTrackingState)
                 }
         }
     }

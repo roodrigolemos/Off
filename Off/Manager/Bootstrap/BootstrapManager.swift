@@ -12,6 +12,7 @@ final class BootstrapManager {
 
     func bootstrap(
         screenTimeManager: ScreenTimeManager,
+        usageManager: UsageManager,
         planManager: PlanManager,
         checkInManager: CheckInManager,
         attributeManager: AttributeManager,
@@ -19,6 +20,7 @@ final class BootstrapManager {
         urgeManager: UrgeManager,
         statsManager: StatsManager
     ) {
+        screenTimeManager.refreshAuthorizationStatus()
         screenTimeManager.loadSelection()
         planManager.loadPlan()
         attributeManager.loadScores()
@@ -32,9 +34,12 @@ final class BootstrapManager {
             planHistory: planManager.planHistory,
             interventions: urgeManager.interventions
         )
+        usageManager.recalculate(trackingState: screenTimeManager.usageTrackingState)
     }
 
     func refresh(
+        screenTimeManager: ScreenTimeManager,
+        usageManager: UsageManager,
         planManager: PlanManager,
         checkInManager: CheckInManager,
         attributeManager: AttributeManager,
@@ -42,6 +47,8 @@ final class BootstrapManager {
         urgeManager: UrgeManager,
         statsManager: StatsManager
     ) {
+        screenTimeManager.refreshAuthorizationStatus()
+        screenTimeManager.loadSelection()
         planManager.loadPlan()
         checkInManager.loadCheckIns()
         urgeManager.loadInterventions()
@@ -53,5 +60,6 @@ final class BootstrapManager {
             planHistory: planManager.planHistory,
             interventions: urgeManager.interventions
         )
+        usageManager.recalculate(trackingState: screenTimeManager.usageTrackingState)
     }
 }

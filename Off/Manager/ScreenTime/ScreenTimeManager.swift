@@ -24,9 +24,7 @@ final class ScreenTimeManager {
     
     init(store: ActivitySelectionStore) {
         self.store = store
-        Task {
-            await checkAuthorization()
-        }
+        refreshAuthorizationStatus()
     }
     
     var hasSelectedActivity: Bool {
@@ -38,32 +36,41 @@ final class ScreenTimeManager {
     var isAuthorized: Bool {
         authorizationStatus == .approved
     }
+
+    var usageTrackingState: UsageTrackingState {
+        UsageTrackingState(isAuthorized: isAuthorized, hasSelection: hasSelectedActivity)
+    }
+
+    var selectionDigest: Int {
+        var hasher = Hasher()
+        hasher.combine(selectedActivities.applicationTokens)
+        hasher.combine(selectedActivities.categoryTokens)
+        hasher.combine(selectedActivities.webDomainTokens)
+        return hasher.finalize()
+    }
 }
 
 // MARK: Authorization
 extension ScreenTimeManager {
+
+    func refreshAuthorizationStatus() {
+        authorizationStatus = AuthorizationCenter.shared.authorizationStatus
+    }
     
     func requestAuthorization() async {
         do {
             try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
-            self.authorizationStatus = AuthorizationCenter.shared.authorizationStatus
+            refreshAuthorizationStatus()
+            error = nil
         } catch {
             print("Failed to request authorization: \(error)")
-            switch AuthorizationCenter.shared.authorizationStatus {
-            case .notDetermined:
-                self.authorizationStatus = .notDetermined
-            case .denied:
-                self.authorizationStatus = .denied
-            case .approved:
-                self.authorizationStatus = .approved
-            @unknown default:
-                print("Unknow error")
-            }
+            refreshAuthorizationStatus()
+            self.error = .requestFailed
         }
     }
     
     func checkAuthorization() async {
-        self.authorizationStatus = AuthorizationCenter.shared.authorizationStatus
+        refreshAuthorizationStatus()
     }
 }
 
