@@ -151,8 +151,6 @@ private extension InsightsView {
     }
 
     func trendChartCard(attribute: Attribute, currentScore: Double, momentum: Bool) -> some View {
-        let description = levelDescription(for: attribute, score: currentScore)
-
         return ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.offBackgroundSecondary)
@@ -193,11 +191,6 @@ private extension InsightsView {
                     HStack(spacing: 4) {
                         scoreDots(score: currentScore)
                     }
-
-                    Text(description)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.offTextMuted)
-                        .padding(.top, 8)
                 }
             }
             .padding(20)
@@ -802,60 +795,6 @@ private extension InsightsView {
                     }
             }
         }
-    }
-
-    func levelDescription(for attribute: Attribute, score: Double) -> String {
-        let descriptions: [Attribute: [String]] = [
-            .clarity: [
-                "Overwhelmed, foggy mind",
-                "Glimpses of clarity",
-                "Noticeably clearer thinking",
-                "Clear, focused thinking",
-                "Effortless mental clarity"
-            ],
-            .focus: [
-                "Scattered, fleeting attention",
-                "Brief focus bursts",
-                "Improving sustained attention",
-                "Deep concentration ability",
-                "Natural flow state"
-            ],
-            .energy: [
-                "Drained, exhausted constantly",
-                "Slightly more energy",
-                "Stable energy levels",
-                "Consistent daily vitality",
-                "Energized and present"
-            ],
-            .drive: [
-                "Lost, disconnected",
-                "Fleeting direction glimpses",
-                "Developing clearer path",
-                "Connected to goals",
-                "Strong, unwavering purpose"
-            ],
-            .control: [
-                "Powerless against urges",
-                "Inconsistent self-control",
-                "Growing urge control",
-                "Solid impulse management",
-                "Full intentional control"
-            ],
-            .patience: [
-                "Zero stillness tolerance",
-                "Noticing boredom reactivity",
-                "Building stillness tolerance",
-                "Comfortable with waiting",
-                "Deep inner patience"
-            ]
-        ]
-
-        let index = Int(max(1.0, min(5.0, score)).rounded(.up)) - 1
-        guard let levels = descriptions[attribute], levels.indices.contains(index) else {
-            return ""
-        }
-
-        return levels[index]
     }
 
     func urgeLabel(for index: Int) -> String {
