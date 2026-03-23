@@ -6,14 +6,14 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct SettingsView: View {
 
     @Environment(PlanManager.self) var planManager
+    @Environment(ScreenTimeManager.self) var screenTimeManager
+    @Environment(\.requestReview) private var requestReview
 
-    @State private var eveningReminderOn: Bool = true
-    @State private var weeklyFeedbackOn: Bool = true
-    @State private var patternInsightsOn: Bool = false
     @State private var showPlanDetails: Bool = false
 
     var body: some View {
@@ -25,8 +25,10 @@ struct SettingsView: View {
                     VStack(spacing: 0) {
                         headerSection
                         currentPlanSection
+                        accessSection
                         notificationsSection
-                        accountDataSection
+                        supportSection
+                        legalSection
                     }
                     .padding(.bottom, 48)
                 }
@@ -53,65 +55,124 @@ private extension SettingsView {
     }
 
     var currentPlanSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("CURRENT PLAN")
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(Color.offTextMuted)
-                .tracking(1.6)
-
-            Button { showPlanDetails = true } label: {
+        settingsSection(title: "CURRENT PLAN", bottomPadding: 28) {
+            Button {
+                showPlanDetails = true
+            } label: {
                 currentPlanCard
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 36)
+    }
+
+    var accessSection: some View {
+        settingsSection(title: "ACCESS") {
+            settingsRow(
+                icon: "hourglass.badge.shield.half.filled",
+                title: "Screen Time Access",
+                subtitle: "Required for app limits and usage",
+                iconColor: accessBadgeColor,
+                action: {}
+            ) {
+                HStack(spacing: 10) {
+                    statusBadge(title: accessStatusTitle, tint: accessBadgeColor)
+                    rowChevron
+                }
+            }
+        }
     }
 
     var notificationsSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("NOTIFICATIONS")
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(Color.offTextMuted)
-                .tracking(1.6)
-
-            notificationsCard
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 36)
-    }
-
-    var accountDataSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("ACCOUNT & DATA")
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(Color.offTextMuted)
-                .tracking(1.6)
-
-            VStack(spacing: 14) {
-                accountActionRow(
-                    icon: "square.and.arrow.up",
-                    title: "Export Check-in History",
-                    subtitle: "Download your data as CSV",
-                    iconColor: Color.offAccent
-                )
-
-                accountActionRow(
-                    icon: "creditcard",
-                    title: "Manage Subscription",
-                    subtitle: "View or change your plan",
-                    iconColor: Color.offAccent
-                )
-
-                deleteDataButton
+        settingsSection(title: "NOTIFICATIONS") {
+            settingsRow(
+                icon: "bell.badge",
+                title: "Notifications",
+                subtitle: "Manage reminders and alerts",
+                action: {}
+            ) {
+                rowChevron
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 36)
+    }
+
+    var supportSection: some View {
+        settingsSection(title: "SUPPORT") {
+            VStack(spacing: 14) {
+                settingsRow(
+                    icon: "bubble.left.and.text.bubble.right",
+                    title: "Contact Support",
+                    subtitle: "Get help with Off",
+                    action: {}
+                ) {
+                    rowChevron
+                }
+
+                settingsRow(
+                    icon: "star",
+                    title: "Rate the App",
+                    subtitle: "Leave a review on the App Store",
+                    action: {
+                        requestReview()
+                    }
+                ) {
+                    rowChevron
+                }
+
+                settingsRow(
+                    icon: "square.and.arrow.up",
+                    title: "Share App",
+                    subtitle: "Tell someone about Off",
+                    action: {}
+                ) {
+                    rowChevron
+                }
+            }
+        }
+    }
+
+    var legalSection: some View {
+        settingsSection(title: "LEGAL") {
+            VStack(spacing: 14) {
+                settingsRow(
+                    icon: "hand.raised",
+                    title: "Privacy Policy",
+                    subtitle: "How your data is handled",
+                    action: {}
+                ) {
+                    rowChevron
+                }
+
+                settingsRow(
+                    icon: "doc.text",
+                    title: "Terms of Use",
+                    subtitle: "Read the product terms",
+                    action: {}
+                ) {
+                    rowChevron
+                }
+            }
+        }
     }
 }
 
 private extension SettingsView {
+
+    func settingsSection<Content: View>(
+        title: String,
+        bottomPadding: CGFloat = 36,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text(title)
+                .font(.system(size: 12, weight: .heavy))
+                .foregroundStyle(Color.offTextMuted)
+                .tracking(1.6)
+
+            content()
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, bottomPadding)
+    }
 
     var currentPlanCard: some View {
         ZStack {
@@ -122,7 +183,8 @@ private extension SettingsView {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.offAccentSoft.opacity(0.15),
+                            Color.offAccentSoft.opacity(0.18),
+                            Color.offAccent.opacity(0.03),
                             Color.clear
                         ],
                         startPoint: .topLeading,
@@ -130,40 +192,33 @@ private extension SettingsView {
                     )
                 )
 
-            HStack(spacing: 0) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.offAccent.opacity(0.12))
-                            .frame(width: 36, height: 36)
+            HStack(spacing: 16) {
+                rowLeadingIcon(
+                    icon: planManager.activePlan?.displayIcon ?? PlanVisuals.defaultIcon,
+                    color: .offAccent,
+                    size: 46
+                )
 
-                        Image(systemName: planManager.activePlan?.displayIcon ?? PlanVisuals.defaultIcon)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.offAccent)
-                    }
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(planManager.activePlan?.displayName ?? "No Plan")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.offTextPrimary)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(planManager.activePlan?.displayName ?? "No Plan")
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundStyle(Color.offTextPrimary)
-
-                        if let days = planManager.activePlan?.activeDays {
-                            Text("Active for \(days) days")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(Color.offTextSecondary)
-                        }
-                    }
+                    Text(planSummaryText)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.offTextSecondary)
+                        .multilineTextAlignment(.leading)
                 }
 
-                Spacer()
+                Spacer(minLength: 12)
 
                 ZStack {
                     Circle()
                         .fill(Color.offAccent.opacity(0.08))
-                        .frame(width: 44, height: 44)
+                        .frame(width: 42, height: 42)
 
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(Color.offAccent)
                 }
             }
@@ -176,106 +231,23 @@ private extension SettingsView {
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 
-    var notificationsCard: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.offBackgroundSecondary)
-
-            VStack(spacing: 0) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Evening Check-in Reminder")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.offTextPrimary)
-
-                        Text("Daily reminder to check in")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.offTextSecondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $eveningReminderOn)
-                        .tint(Color.offAccent)
-                        .labelsHidden()
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-
-                Divider()
-                    .background(Color.offStroke)
-                    .padding(.horizontal, 24)
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Weekly Feedback Alert")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.offTextPrimary)
-
-                        Text("Get your weekly insights")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.offTextSecondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $weeklyFeedbackOn)
-                        .tint(Color.offAccent)
-                        .labelsHidden()
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-
-                Divider()
-                    .background(Color.offStroke)
-                    .padding(.horizontal, 24)
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Pattern Insights")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.offTextPrimary)
-
-                        Text("Notifications about detected patterns")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.offTextSecondary)
-                    }
-
-                    Spacer()
-
-                    Toggle("", isOn: $patternInsightsOn)
-                        .tint(Color.offAccent)
-                        .labelsHidden()
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-            }
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.offStroke, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-    }
-
-    func accountActionRow(icon: String, title: String, subtitle: String, iconColor: Color) -> some View {
-        Button { } label: {
+    func settingsRow<Accessory: View>(
+        icon: String,
+        title: String,
+        subtitle: String,
+        iconColor: Color = .offAccent,
+        action: @escaping () -> Void,
+        @ViewBuilder accessory: () -> Accessory
+    ) -> some View {
+        Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(Color.offBackgroundSecondary)
 
                 HStack(spacing: 14) {
-                    ZStack {
-                        Circle()
-                            .fill(iconColor.opacity(0.12))
-                            .frame(width: 36, height: 36)
+                    rowLeadingIcon(icon: icon, color: iconColor, size: 38)
 
-                        Image(systemName: icon)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(iconColor)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(title)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(Color.offTextPrimary)
@@ -285,17 +257,15 @@ private extension SettingsView {
                             .foregroundStyle(Color.offTextSecondary)
                     }
 
-                    Spacer()
+                    Spacer(minLength: 12)
 
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color.offTextMuted)
+                    accessory()
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 18)
             }
             .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .stroke(Color.offStroke, lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
@@ -303,45 +273,82 @@ private extension SettingsView {
         .buttonStyle(.plain)
     }
 
-    var deleteDataButton: some View {
-        Button { } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.offBackgroundSecondary)
+    func rowLeadingIcon(icon: String, color: Color, size: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .fill(color.opacity(0.12))
+                .frame(width: size, height: size)
 
-                HStack(spacing: 14) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.offWarn.opacity(0.12))
-                            .frame(width: 36, height: 36)
-
-                        Image(systemName: "trash")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.offWarn)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Delete All Data")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.offWarn)
-
-                        Text("Permanently remove all app data")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.offTextSecondary)
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.offStroke, lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+            Image(systemName: icon)
+                .font(.system(size: size * 0.4, weight: .semibold))
+                .foregroundStyle(color)
         }
-        .buttonStyle(.plain)
+    }
+
+    func statusBadge(title: String, tint: Color) -> some View {
+        Text(title)
+            .font(.system(size: 11, weight: .bold))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(tint.opacity(0.12))
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(tint.opacity(0.2), lineWidth: 1)
+            )
+    }
+
+    var rowChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(Color.offTextMuted)
+    }
+}
+
+private extension SettingsView {
+
+    var planSummaryText: String {
+        guard let plan = planManager.activePlan else {
+            return "View or set up your plan"
+        }
+
+        return [
+            daysDescription(plan.days),
+            "\(plan.dailyAppLimit) min/day"
+        ]
+        .filter { !$0.isEmpty }
+        .joined(separator: " · ")
+    }
+
+    var accessStatusTitle: String {
+        screenTimeManager.isAuthorized ? "Connected" : "Not Connected"
+    }
+
+    var accessBadgeColor: Color {
+        screenTimeManager.isAuthorized ? .offAccent : .offWarn
+    }
+
+    func daysDescription(_ days: DaysOfWeek) -> String {
+        if days == .everyday { return "Everyday" }
+        if days == .weekdays { return "Weekdays" }
+        if days == .weekends { return "Weekends" }
+
+        let ordered: [(DaysOfWeek, String)] = [
+            (.monday, "Mon"),
+            (.tuesday, "Tue"),
+            (.wednesday, "Wed"),
+            (.thursday, "Thu"),
+            (.friday, "Fri"),
+            (.saturday, "Sat"),
+            (.sunday, "Sun")
+        ]
+
+        return ordered
+            .compactMap { days.contains($0.0) ? $0.1 : nil }
+            .joined(separator: ", ")
     }
 }
 
