@@ -8,16 +8,14 @@ import SwiftUI
 struct UsageReportContentView: View {
 
     let configuration: UsageReportConfiguration
+    
+    @State private var selectedMode: UsageReportMode = .day
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 headerSection
-                todayTotalCard
-                todayAppsCard
-                weekSummaryCard
-                weekAppsCard
-                comparisonCard
+                modeContent
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
@@ -31,12 +29,61 @@ struct UsageReportContentView: View {
 private extension UsageReportContentView {
 
     var headerSection: some View {
-        Text("Usage")
-            .font(.system(size: 38, weight: .heavy))
-            .foregroundStyle(Color.offPrimaryText)
-            .tracking(-0.5)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 6)
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Usage")
+                .font(.system(size: 38, weight: .heavy))
+                .foregroundStyle(Color.offPrimaryText)
+                .tracking(-0.5)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            modePicker
+        }
+        .padding(.bottom, 6)
+    }
+
+    @ViewBuilder
+    var modeContent: some View {
+        switch selectedMode {
+        case .day:
+            todayTotalCard
+            todayAppsCard
+        case .week:
+            weekSummaryCard
+            weekAppsCard
+            comparisonCard
+        }
+    }
+
+    var modePicker: some View {
+        HStack(spacing: 8) {
+            ForEach(UsageReportMode.allCases) { mode in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        selectedMode = mode
+                    }
+                } label: {
+                    Text(mode.title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(selectedMode == mode ? Color.white : Color.offPrimaryText)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(selectedMode == mode ? Color.offAccent : Color.offSurface.opacity(0.001))
+                        )
+                        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(6)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.offAccentSoft)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.offTileStroke, lineWidth: 1)
+        )
     }
 
     var todayTotalCard: some View {
@@ -169,6 +216,22 @@ private extension UsageReportContentView {
             Color.offSuccessTone
         case .same:
             Color.offPrimaryText
+        }
+    }
+}
+
+private enum UsageReportMode: String, CaseIterable, Identifiable {
+    case day
+    case week
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .day:
+            "Day"
+        case .week:
+            "Week"
         }
     }
 }
