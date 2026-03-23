@@ -6,6 +6,28 @@
 import Foundation
 import Observation
 
+enum AttributeTrendState: Equatable {
+    case improving
+    case stable
+    case declining
+
+    var label: String {
+        switch self {
+        case .improving: "Improving"
+        case .stable: "Stable"
+        case .declining: "Declining"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .improving: "arrow.up"
+        case .stable: "minus"
+        case .declining: "arrow.down"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class AttributeManager {
@@ -90,6 +112,36 @@ final class AttributeManager {
             self.error = .saveFailed
         }
     }
+
+    func trendState(
+        for attribute: Attribute,
+        plan: PlanSnapshot?,
+        checkIns: [CheckInSnapshot],
+        now: Date = .now
+    ) -> AttributeTrendState {
+        guard let plan, let current = scores else { return .stable }
+        let firstCandidateMonday = firstProcessableMonday(planStart: plan.firstPlanCreatedAt, now: now)
+
+        guard let lastProcessedMonday = current.lastProcessedMonday,
+              lastProcessedMonday > firstCandidateMonday else {
+            return .stable
+        }
+
+        let weekCheckIns = checkInsForPreviousWeek(checkIns, monday: lastProcessedMonday)
+        guard weekCheckIns.count >= 4 else { return .stable }
+
+        let adherence = adherenceClass(
+            plan: plan,
+            checkIns: weekCheckIns,
+            monday: lastProcessedMonday
+        )
+        let tendency = tendency(for: attribute, checkIns: weekCheckIns)
+        let movement = movement(for: tendency, adherence: adherence)
+
+        if movement > 0 { return .improving }
+        if movement < 0 { return .declining }
+        return .stable
+    }
     
     private func applyEvolution(
         to snapshot: AttributeScoresSnapshot,
@@ -145,14 +197,20 @@ final class AttributeManager {
         )
     }
 
-    private func mondaysToProcess(from lastProcessedMonday: Date?, planStart: Date, now: Date) -> [Date] {
+    private func firstProcessableMonday(planStart: Date, now: Date) -> Date {
         let calendar = Calendar.current
         let thisMonday = Date.thisWeekMonday(now: now)
-        let firstCandidateMonday = calendar.date(
+        return calendar.date(
             byAdding: .day,
             value: 7,
             to: Date.thisWeekMonday(now: planStart)
         ) ?? thisMonday
+    }
+
+    private func mondaysToProcess(from lastProcessedMonday: Date?, planStart: Date, now: Date) -> [Date] {
+        let calendar = Calendar.current
+        let thisMonday = Date.thisWeekMonday(now: now)
+        let firstCandidateMonday = firstProcessableMonday(planStart: planStart, now: now)
 
         let startMonday: Date = {
             if let lastProcessedMonday {

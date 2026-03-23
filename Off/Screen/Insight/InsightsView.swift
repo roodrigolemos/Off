@@ -11,6 +11,8 @@ import Charts
 struct InsightsView: View {
 
     @Environment(AttributeManager.self) var attributeManager
+    @Environment(PlanManager.self) var planManager
+    @Environment(CheckInManager.self) var checkInManager
     @Environment(StatsManager.self) var statsManager
 
     @State private var showArchive: Bool = false
@@ -135,6 +137,8 @@ private extension InsightsView {
 
     var trendChartsGrid: some View {
         let scores = attributeManager.scores
+        let plan = planManager.activePlan
+        let checkIns = checkInManager.checkIns
 
         return LazyVGrid(columns: [
             GridItem(.flexible(), spacing: 14),
@@ -144,13 +148,13 @@ private extension InsightsView {
                 trendChartCard(
                     attribute: attribute,
                     currentScore: scores?.scores[attribute] ?? 3.0,
-                    momentum: scores?.momentum[attribute] ?? false
+                    trend: attributeManager.trendState(for: attribute, plan: plan, checkIns: checkIns)
                 )
             }
         }
     }
 
-    func trendChartCard(attribute: Attribute, currentScore: Double, momentum: Bool) -> some View {
+    func trendChartCard(attribute: Attribute, currentScore: Double, trend: AttributeTrendState) -> some View {
         return ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.offBackgroundSecondary)
@@ -169,18 +173,7 @@ private extension InsightsView {
 
                     Spacer()
 
-                    if momentum {
-                        Text("Momentum")
-                            .font(.system(size: 10, weight: .heavy))
-                            .foregroundStyle(Color.offAccent)
-                            .tracking(0.4)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(Color.offAccent.opacity(0.12))
-                            )
-                    }
+                    trendIcon(trend)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -191,6 +184,9 @@ private extension InsightsView {
                     HStack(spacing: 4) {
                         scoreDots(score: currentScore)
                     }
+
+                    trendLabel(trend)
+                        .padding(.top, 8)
                 }
             }
             .padding(20)
@@ -200,6 +196,29 @@ private extension InsightsView {
                 .stroke(Color.offStroke, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+    }
+
+    func trendIcon(_ trend: AttributeTrendState) -> some View {
+        Image(systemName: trend.icon)
+            .font(.system(size: 12, weight: .heavy))
+            .foregroundStyle(trendColor(trend))
+    }
+
+    func trendLabel(_ trend: AttributeTrendState) -> some View {
+        Text(trend.label)
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(trendColor(trend))
+    }
+
+    func trendColor(_ trend: AttributeTrendState) -> Color {
+        switch trend {
+        case .improving:
+            return .offAccent
+        case .stable:
+            return .offTextMuted
+        case .declining:
+            return .offWarn
+        }
     }
 
     var adherenceCalendarCard: some View {
