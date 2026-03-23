@@ -7,50 +7,50 @@ import Foundation
 
 enum Attribute: String, CaseIterable {
     
-    case focus, control, action, energy
+    case energy, focus, action, control
 
     var label: String {
         switch self {
-        case .focus: "Focus"
-        case .control: "Control"
-        case .action: "Action"
         case .energy: "Energy"
+        case .focus: "Focus"
+        case .action: "Action"
+        case .control: "Control"
         }
     }
 
     var lowLabel: String {
         switch self {
-        case .focus: "Low"
-        case .control: "Autopilot"
-        case .action: "Stuck"
         case .energy: "Low"
+        case .focus: "Low"
+        case .action: "Stuck"
+        case .control: "Autopilot"
         }
     }
 
     var description: String {
         switch self {
-        case .focus: "Your ability to concentrate on one thing at a time"
-        case .control: "How intentional you are about how you spend your time"
-        case .action: "How easily you start and follow through on what matters"
         case .energy: "How energized and alive you feel throughout the day"
+        case .focus: "Your ability to concentrate on one thing at a time"
+        case .action: "How easily you start and follow through on what matters"
+        case .control: "How intentional you are about how you spend your time"
         }
     }
 
     var highLabel: String {
         switch self {
-        case .focus: "High"
-        case .control: "Intentional"
-        case .action: "Moving"
         case .energy: "High"
+        case .focus: "High"
+        case .action: "Moving"
+        case .control: "Intentional"
         }
     }
 
     var icon: String {
         switch self {
-        case .focus:    "scope"
-        case .control:  "hand.raised.slash.fill"
-        case .action:   "flag.checkered"
         case .energy:   "bolt.fill"
+        case .focus:    "scope"
+        case .action:   "flag.checkered"
+        case .control:  "hand.raised.slash.fill"
         }
     }
 
