@@ -81,7 +81,7 @@ private extension CheckInView {
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(Color.offTextPrimary)
 
-            Text(checkInReferenceSubtitle)
+            Text("Answer based on how you felt today")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.offTextSecondary)
                 .lineSpacing(3)
@@ -106,7 +106,7 @@ private extension CheckInView {
 
     var attributesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("How your mind feels")
+            Text("How your mind felt")
                 .font(.system(size: 22, weight: .heavy))
                 .foregroundStyle(Color.offTextPrimary)
                 .tracking(-0.3)
@@ -114,32 +114,32 @@ private extension CheckInView {
 
             VStack(spacing: 12) {
                 attributeCard(
-                    icon: "scope",
-                    title: "Focus",
-                    subtitle: "Sustaining attention feels",
-                    selection: $focus,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
+                    icon: "bolt.fill",
+                    title: "Energy",
+                    subtitle: "How was your energy?",
+                    selection: $energy,
+                    labels: [.better: "High", .same: "Okay", .worse: "Low"]
                 )
                 attributeCard(
-                    icon: "hand.raised.slash.fill",
-                    title: "Control",
-                    subtitle: "Your phone use feels",
-                    selection: $control,
-                    labels: [.automatic: "Automatic", .same: "Same", .conscious: "Conscious"]
+                    icon: "scope",
+                    title: "Focus",
+                    subtitle: "Were you able to stay focused?",
+                    selection: $focus,
+                    labels: [.better: "Yes", .same: "Kind of", .worse: "Not really"]
                 )
                 attributeCard(
                     icon: "flag.checkered",
                     title: "Action",
-                    subtitle: "Taking action feels",
+                    subtitle: "Did you do what you needed to do?",
                     selection: $action,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
+                    labels: [.better: "Yes", .same: "Partially", .worse: "No"]
                 )
                 attributeCard(
-                    icon: "bolt.fill",
-                    title: "Energy",
-                    subtitle: "Your mental energy feels",
-                    selection: $energy,
-                    labels: [.worse: "Worse", .same: "Same", .better: "Better"]
+                    icon: "hand.raised.slash.fill",
+                    title: "Control",
+                    subtitle: "How was your control with apps?",
+                    selection: $control,
+                    labels: [.conscious: "Under control", .same: "Some slips", .automatic: "Out of control"]
                 )
             }
         }
@@ -156,7 +156,7 @@ private extension CheckInView {
             attributeCard(
                 icon: "flame.fill",
                 title: "Urge",
-                subtitle: "How strong was your urge to use social media today?",
+                subtitle: "How strong was your urge to use social media?",
                 selection: $urgeLevel,
                 labels: [.none: "None", .noticeable: "Noticeable", .persistent: "Persistent", .tookOver: "Took over"]
             )
