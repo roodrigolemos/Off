@@ -144,13 +144,19 @@ private extension InsightsView {
                 trendChartCard(
                     attribute: attribute,
                     dotCount: attributeManager.dotCount(for: attribute),
-                    stateLabel: attributeManager.stateLabel(for: attribute)
+                    stateLabel: attributeManager.stateLabel(for: attribute),
+                    microTrend: attributeManager.microTrend(for: attribute)
                 )
             }
         }
     }
 
-    func trendChartCard(attribute: Attribute, dotCount: Int, stateLabel: String) -> some View {
+    func trendChartCard(
+        attribute: Attribute,
+        dotCount: Int,
+        stateLabel: String,
+        microTrend: AttributeMicroTrend
+    ) -> some View {
         return ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.offBackgroundSecondary)
@@ -166,6 +172,10 @@ private extension InsightsView {
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(Color.offAccent)
                     }
+
+                    Spacer()
+
+                    microTrendIndicator(microTrend)
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -192,6 +202,21 @@ private extension InsightsView {
         .frame(maxWidth: .infinity)
         .frame(height: 140, alignment: .topLeading)
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
+    }
+
+    func microTrendIndicator(_ trend: AttributeMicroTrend) -> some View {
+        Group {
+            switch trend {
+            case .improving:
+                Image(systemName: "arrow.up")
+            case .stable:
+                Image(systemName: "minus")
+            case .declining:
+                Image(systemName: "arrow.down")
+            }
+        }
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundStyle(Color.offTextMuted)
     }
 
     var adherenceCalendarCard: some View {

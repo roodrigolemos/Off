@@ -6,6 +6,12 @@
 import Foundation
 import Observation
 
+enum AttributeMicroTrend: Equatable {
+    case improving
+    case stable
+    case declining
+}
+
 @MainActor
 @Observable
 final class AttributeManager {
@@ -13,6 +19,7 @@ final class AttributeManager {
     private let store: AttributeStore
     private let dailyDecay: Double = 0.2
     private let stateRange: ClosedRange<Double> = -5.0...5.0
+    private var latestCheckIns: [CheckInSnapshot] = []
 
     var snapshot: AttributeStateSnapshot?
     var error: AttributeError?
@@ -53,6 +60,7 @@ final class AttributeManager {
 
     func refreshState(checkIns: [CheckInSnapshot], now: Date = .now) {
         guard let snapshot else { return }
+        latestCheckIns = checkIns
 
         let refreshedSnapshot = recomputedSnapshot(from: snapshot, checkIns: checkIns, now: now)
 
@@ -66,20 +74,32 @@ final class AttributeManager {
     }
 
     func dotCount(for attribute: Attribute) -> Int {
-        let state = snapshot?.currentStates[attribute] ?? 0
+        dotCount(forState: snapshot?.currentStates[attribute] ?? 0)
+    }
 
-        switch state {
-        case ...(-3.0):
-            return 1
-        case -3.0..<(-1.0):
-            return 2
-        case -1.0...1.0:
-            return 3
-        case 1.0..<3.0:
-            return 4
-        default:
-            return 5
+    func microTrend(for attribute: Attribute, now: Date = .now) -> AttributeMicroTrend {
+        guard let snapshot else { return .stable }
+
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else {
+            return .stable
         }
+
+        let initializedDay = calendar.startOfDay(for: snapshot.initializedAt)
+        guard initializedDay <= yesterday else {
+            return .stable
+        }
+
+        let todayStates = computedStates(from: snapshot, checkIns: latestCheckIns, through: today)
+        let yesterdayStates = computedStates(from: snapshot, checkIns: latestCheckIns, through: yesterday)
+
+        let todayDotCount = dotCount(forState: todayStates[attribute] ?? 0)
+        let yesterdayDotCount = dotCount(forState: yesterdayStates[attribute] ?? 0)
+
+        if todayDotCount > yesterdayDotCount { return .improving }
+        if todayDotCount < yesterdayDotCount { return .declining }
+        return .stable
     }
 
     func stateLabel(for attribute: Attribute) -> String {
@@ -102,10 +122,27 @@ final class AttributeManager {
         checkIns: [CheckInSnapshot],
         now: Date
     ) -> AttributeStateSnapshot {
+        let currentStates = computedStates(from: snapshot, checkIns: checkIns, through: now)
+
+        return AttributeStateSnapshot(
+            currentStates: currentStates,
+            baselineStates: snapshot.baselineStates,
+            initializedAt: snapshot.initializedAt,
+            updatedAt: now
+        )
+    }
+
+    private func computedStates(
+        from snapshot: AttributeStateSnapshot,
+        checkIns: [CheckInSnapshot],
+        through targetDate: Date
+    ) -> [Attribute: Double] {
         let calendar = Calendar.current
         let startDay = calendar.startOfDay(for: snapshot.initializedAt)
-        let endDay = calendar.startOfDay(for: now)
+        let endDay = calendar.startOfDay(for: targetDate)
         let latestCheckInsByDay = latestCheckInsByDay(from: checkIns, initializedAt: snapshot.initializedAt)
+
+        guard endDay >= startDay else { return snapshot.baselineStates }
 
         var currentStates = snapshot.baselineStates
         var day = startDay
@@ -128,12 +165,7 @@ final class AttributeManager {
             day = nextDay
         }
 
-        return AttributeStateSnapshot(
-            currentStates: currentStates,
-            baselineStates: snapshot.baselineStates,
-            initializedAt: snapshot.initializedAt,
-            updatedAt: now
-        )
+        return currentStates
     }
 
     private func latestCheckInsByDay(
@@ -173,6 +205,21 @@ final class AttributeManager {
 
     private func nextState(from previousState: Double, input: Double) -> Double {
         (previousState + input - (dailyDecay * sign(of: previousState))).clamped(to: stateRange)
+    }
+
+    private func dotCount(forState state: Double) -> Int {
+        switch state {
+        case ...(-3.0):
+            return 1
+        case -3.0..<(-1.0):
+            return 2
+        case -1.0...1.0:
+            return 3
+        case 1.0..<3.0:
+            return 4
+        default:
+            return 5
+        }
     }
 
     private func sign(of value: Double) -> Double {
