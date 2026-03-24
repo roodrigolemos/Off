@@ -177,12 +177,15 @@ private extension InsightsView {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(20)
         }
         .overlay(
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(Color.offStroke, lineWidth: 1)
         )
+        .frame(maxWidth: .infinity)
+        .frame(height: 124, alignment: .topLeading)
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 
