@@ -1,13 +1,13 @@
 //
-//  AttributeScoresSnapshot.swift
+//  AttributeStateSnapshot.swift
 //  Off
 //
 
 import Foundation
 
-struct AttributeScoresSnapshot: Equatable {
-    let scores: [Attribute: Double]
-    let momentum: [Attribute: Bool]
-    let lastProcessedMonday: Date?
+struct AttributeStateSnapshot: Equatable {
+    let currentStates: [Attribute: Double]
+    let baselineStates: [Attribute: Double]
+    let initializedAt: Date
     let updatedAt: Date
 }

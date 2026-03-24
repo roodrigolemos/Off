@@ -37,7 +37,7 @@ struct OffApp: App {
 
     init() {
         do {
-            let schema = Schema([AttributeScores.self, Plan.self, CheckIn.self, UrgeIntervention.self, WeeklyInsight.self])
+            let schema = Schema([AttributeState.self, Plan.self, CheckIn.self, UrgeIntervention.self, WeeklyInsight.self])
             let modelConfig = ModelConfiguration(swiftDataContainerName, schema: schema)
             container = try ModelContainer(for: schema, configurations: modelConfig)
         } catch {

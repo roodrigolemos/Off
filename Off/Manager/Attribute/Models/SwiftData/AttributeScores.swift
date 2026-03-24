@@ -1,5 +1,5 @@
 //
-//  AttributeScores.swift
+//  AttributeState.swift
 //  Off
 //
 
@@ -7,71 +7,71 @@ import Foundation
 import SwiftData
 
 @Model
-final class AttributeScores {
+final class AttributeState {
     
-    var focus: Double
-    var control: Double
-    var action: Double
-    var energy: Double
-    var focusMomentum: Bool
-    var controlMomentum: Bool
-    var actionMomentum: Bool
-    var energyMomentum: Bool
-    var lastProcessedMonday: Date?
+    var currentFocus: Double
+    var currentControl: Double
+    var currentAction: Double
+    var currentEnergy: Double
+    var baselineFocus: Double
+    var baselineControl: Double
+    var baselineAction: Double
+    var baselineEnergy: Double
+    var initializedAt: Date
     var updatedAt: Date
 
     init(
-        focus: Double,
-        control: Double,
-        action: Double,
-        energy: Double,
-        focusMomentum: Bool,
-        controlMomentum: Bool,
-        actionMomentum: Bool,
-        energyMomentum: Bool,
-        lastProcessedMonday: Date?,
+        currentFocus: Double,
+        currentControl: Double,
+        currentAction: Double,
+        currentEnergy: Double,
+        baselineFocus: Double,
+        baselineControl: Double,
+        baselineAction: Double,
+        baselineEnergy: Double,
+        initializedAt: Date,
         updatedAt: Date
     ) {
-        self.focus = focus
-        self.control = control
-        self.action = action
-        self.energy = energy
-        self.focusMomentum = focusMomentum
-        self.controlMomentum = controlMomentum
-        self.actionMomentum = actionMomentum
-        self.energyMomentum = energyMomentum
-        self.lastProcessedMonday = lastProcessedMonday
+        self.currentFocus = currentFocus
+        self.currentControl = currentControl
+        self.currentAction = currentAction
+        self.currentEnergy = currentEnergy
+        self.baselineFocus = baselineFocus
+        self.baselineControl = baselineControl
+        self.baselineAction = baselineAction
+        self.baselineEnergy = baselineEnergy
+        self.initializedAt = initializedAt
         self.updatedAt = updatedAt
     }
 
-    init(from snapshot: AttributeScoresSnapshot) {
-        self.focus = snapshot.scores[.focus] ?? 3
-        self.control = snapshot.scores[.control] ?? 3
-        self.action = snapshot.scores[.action] ?? 3
-        self.energy = snapshot.scores[.energy] ?? 3
-        self.focusMomentum = snapshot.momentum[.focus] ?? false
-        self.controlMomentum = snapshot.momentum[.control] ?? false
-        self.actionMomentum = snapshot.momentum[.action] ?? false
-        self.energyMomentum = snapshot.momentum[.energy] ?? false
-        self.lastProcessedMonday = snapshot.lastProcessedMonday
+    init(from snapshot: AttributeStateSnapshot) {
+        self.currentFocus = snapshot.currentStates[.focus] ?? 0
+        self.currentControl = snapshot.currentStates[.control] ?? 0
+        self.currentAction = snapshot.currentStates[.action] ?? 0
+        self.currentEnergy = snapshot.currentStates[.energy] ?? 0
+        self.baselineFocus = snapshot.baselineStates[.focus] ?? 0
+        self.baselineControl = snapshot.baselineStates[.control] ?? 0
+        self.baselineAction = snapshot.baselineStates[.action] ?? 0
+        self.baselineEnergy = snapshot.baselineStates[.energy] ?? 0
+        self.initializedAt = snapshot.initializedAt
         self.updatedAt = snapshot.updatedAt
     }
 
-    func toSnapshot() -> AttributeScoresSnapshot {
-        AttributeScoresSnapshot(
-            scores: [
-                .focus: focus,
-                .control: control,
-                .action: action,
-                .energy: energy
+    func toSnapshot() -> AttributeStateSnapshot {
+        AttributeStateSnapshot(
+            currentStates: [
+                .focus: currentFocus,
+                .control: currentControl,
+                .action: currentAction,
+                .energy: currentEnergy
             ],
-            momentum: [
-                .focus: focusMomentum,
-                .control: controlMomentum,
-                .action: actionMomentum,
-                .energy: energyMomentum
+            baselineStates: [
+                .focus: baselineFocus,
+                .control: baselineControl,
+                .action: baselineAction,
+                .energy: baselineEnergy
             ],
-            lastProcessedMonday: lastProcessedMonday,
+            initializedAt: initializedAt,
             updatedAt: updatedAt
         )
     }

@@ -62,7 +62,7 @@ private extension InsightsView {
 
     var attributeTrendsSection: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("ATTRIBUTE TRENDS")
+            Text("CURRENT ATTRIBUTES")
                 .font(.system(size: 12, weight: .heavy))
                 .foregroundStyle(Color.offTextMuted)
                 .tracking(1.6)
@@ -136,10 +136,6 @@ private extension InsightsView {
 private extension InsightsView {
 
     var trendChartsGrid: some View {
-        let scores = attributeManager.scores
-        let plan = planManager.activePlan
-        let checkIns = checkInManager.checkIns
-
         return LazyVGrid(columns: [
             GridItem(.flexible(), spacing: 14),
             GridItem(.flexible(), spacing: 14)
@@ -147,14 +143,13 @@ private extension InsightsView {
             ForEach(Attribute.allCases, id: \.self) { attribute in
                 trendChartCard(
                     attribute: attribute,
-                    currentScore: scores?.scores[attribute] ?? 3.0,
-                    trend: attributeManager.trendState(for: attribute, plan: plan, checkIns: checkIns)
+                    dotCount: attributeManager.dotCount(for: attribute)
                 )
             }
         }
     }
 
-    func trendChartCard(attribute: Attribute, currentScore: Double, trend: AttributeTrendState) -> some View {
+    func trendChartCard(attribute: Attribute, dotCount: Int) -> some View {
         return ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.offBackgroundSecondary)
@@ -170,10 +165,6 @@ private extension InsightsView {
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(Color.offAccent)
                     }
-
-                    Spacer()
-
-                    trendIcon(trend)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -182,11 +173,8 @@ private extension InsightsView {
                         .foregroundStyle(Color.offTextPrimary)
 
                     HStack(spacing: 4) {
-                        scoreDots(score: currentScore)
+                        stateDots(dotCount: dotCount)
                     }
-
-                    trendLabel(trend)
-                        .padding(.top, 8)
                 }
             }
             .padding(20)
@@ -196,29 +184,6 @@ private extension InsightsView {
                 .stroke(Color.offStroke, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-    }
-
-    func trendIcon(_ trend: AttributeTrendState) -> some View {
-        Image(systemName: trend.icon)
-            .font(.system(size: 12, weight: .heavy))
-            .foregroundStyle(trendColor(trend))
-    }
-
-    func trendLabel(_ trend: AttributeTrendState) -> some View {
-        Text(trend.label)
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundStyle(trendColor(trend))
-    }
-
-    func trendColor(_ trend: AttributeTrendState) -> Color {
-        switch trend {
-        case .improving:
-            return .offAccent
-        case .stable:
-            return .offTextMuted
-        case .declining:
-            return .offWarn
-        }
     }
 
     var adherenceCalendarCard: some View {
@@ -785,33 +750,12 @@ private extension InsightsView {
 
 private extension InsightsView {
 
-    func scoreDots(score: Double) -> some View {
-        let normalized = max(1.0, min(5.0, score))
-        let fullDots = Int(normalized.rounded(.down))
-        let hasHalfDot = (normalized - Double(fullDots)) >= 0.5
-
+    func stateDots(dotCount: Int) -> some View {
         return HStack(spacing: 4) {
             ForEach(0..<5, id: \.self) { index in
-                let fill: Double = if index < fullDots {
-                    1.0
-                } else if index == fullDots && hasHalfDot {
-                    0.5
-                } else {
-                    0.0
-                }
-
                 Circle()
-                    .fill(Color.offStroke.opacity(0.3))
+                    .fill(index < dotCount ? Color.offAccent : Color.offStroke.opacity(0.3))
                     .frame(width: 8, height: 8)
-                    .overlay(alignment: .leading) {
-                        Circle()
-                            .fill(Color.offAccent)
-                            .frame(width: 8, height: 8)
-                            .mask(
-                                Rectangle()
-                                    .frame(width: 8 * fill, height: 8, alignment: .leading)
-                            )
-                    }
             }
         }
     }

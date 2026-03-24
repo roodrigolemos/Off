@@ -10,6 +10,6 @@ import SwiftData
 
 @MainActor
 protocol AttributeStore {
-    func fetchScores() throws -> AttributeScoresSnapshot?
-    func saveScores(_ snapshot: AttributeScoresSnapshot) throws
+    func fetchState() throws -> AttributeStateSnapshot?
+    func saveState(_ snapshot: AttributeStateSnapshot) throws
 }

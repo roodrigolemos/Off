@@ -12,8 +12,8 @@ enum AttributeError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .saveFailed: "Could not save attribute scores."
-        case .loadFailed: "Could not load attribute scores."
+        case .saveFailed: "Could not save attribute state."
+        case .loadFailed: "Could not load attribute state."
         }
     }
 }

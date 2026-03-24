@@ -32,10 +32,20 @@ final class CheckInManager {
         }
     }
 
-    func save(_ snapshot: CheckInSnapshot) {
+    func submitCheckIn(
+        _ snapshot: CheckInSnapshot,
+        attributeManager: AttributeManager,
+        now: Date = .now
+    ) {
         do {
             try store.save(snapshot)
             loadCheckIns()
+            guard error == nil else { return }
+            attributeManager.refreshState(checkIns: checkIns, now: now)
+            guard attributeManager.error == nil else {
+                self.error = .saveFailed
+                return
+            }
             error = nil
         } catch {
             self.error = .saveFailed

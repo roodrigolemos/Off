@@ -17,20 +17,20 @@ final class SwiftDataAttributeStore: AttributeStore {
         self.context = context
     }
 
-    func fetchScores() throws -> AttributeScoresSnapshot? {
-        let descriptor = FetchDescriptor<AttributeScores>()
+    func fetchState() throws -> AttributeStateSnapshot? {
+        let descriptor = FetchDescriptor<AttributeState>()
         let models = try context.fetch(descriptor)
         return models.first?.toSnapshot()
     }
 
-    func saveScores(_ snapshot: AttributeScoresSnapshot) throws {
-        let descriptor = FetchDescriptor<AttributeScores>()
-        let existing = try context.fetch(descriptor)
-        for model in existing {
+    func saveState(_ snapshot: AttributeStateSnapshot) throws {
+        let descriptor = FetchDescriptor<AttributeState>()
+        let existingStates = try context.fetch(descriptor)
+        for model in existingStates {
             context.delete(model)
         }
-        let model = AttributeScores(from: snapshot)
-        context.insert(model)
+        let state = AttributeState(from: snapshot)
+        context.insert(state)
         try context.save()
     }
 }

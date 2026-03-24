@@ -11,6 +11,7 @@ struct CheckInView: View {
 
     @Environment(\.dismiss) var dismiss
     @Environment(CheckInManager.self) var checkInManager
+    @Environment(AttributeManager.self) var attributeManager
     @Environment(PlanManager.self) var planManager
 
     @State private var focus: AttributeRating?
@@ -175,7 +176,7 @@ private extension CheckInView {
                 icon: "calendar.badge.checkmark",
                 title: "Did you follow your plan today?",
                 subtitle: isPlanDay
-                    ? "This is only used to interpret the weekly pattern."
+                    ? "This is used for plan insights only."
                     : "Today is not a plan day. You can skip this.",
                 selection: $planAdherence,
                 labels: [.yes: "Yes", .partially: "Partially", .no: "No"]
@@ -196,7 +197,7 @@ private extension CheckInView {
                 planAdherence: planAdherence,
                 wasPlanDay: isPlanDay
             )
-            checkInManager.save(snapshot)
+            checkInManager.submitCheckIn(snapshot, attributeManager: attributeManager)
 
             if checkInManager.error == nil {
                 dismiss()
@@ -305,13 +306,6 @@ private extension CheckInView {
 
     var isPlanDay: Bool {
         planManager.isPlanDay
-    }
-
-    var checkInReferenceSubtitle: String {
-        if planManager.hasCompletedFirstWeeklyCycle {
-            return "Answer based on how you feel today, compared to last week."
-        }
-        return "Answer based on how you feel today, since you started reducing social media."
     }
 
     var allAnswered: Bool {
