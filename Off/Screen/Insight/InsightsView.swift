@@ -143,13 +143,14 @@ private extension InsightsView {
             ForEach(Attribute.allCases, id: \.self) { attribute in
                 trendChartCard(
                     attribute: attribute,
-                    dotCount: attributeManager.dotCount(for: attribute)
+                    dotCount: attributeManager.dotCount(for: attribute),
+                    stateLabel: attributeManager.stateLabel(for: attribute)
                 )
             }
         }
     }
 
-    func trendChartCard(attribute: Attribute, dotCount: Int) -> some View {
+    func trendChartCard(attribute: Attribute, dotCount: Int, stateLabel: String) -> some View {
         return ZStack {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .fill(Color.offBackgroundSecondary)
@@ -167,7 +168,7 @@ private extension InsightsView {
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(attribute.label)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(Color.offTextPrimary)
@@ -175,6 +176,10 @@ private extension InsightsView {
                     HStack(spacing: 4) {
                         stateDots(dotCount: dotCount)
                     }
+
+                    Text(stateLabel)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.offTextSecondary)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -185,7 +190,7 @@ private extension InsightsView {
                 .stroke(Color.offStroke, lineWidth: 1)
         )
         .frame(maxWidth: .infinity)
-        .frame(height: 124, alignment: .topLeading)
+        .frame(height: 140, alignment: .topLeading)
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 

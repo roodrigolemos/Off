@@ -82,6 +82,21 @@ final class AttributeManager {
         }
     }
 
+    func stateLabel(for attribute: Attribute) -> String {
+        switch dotCount(for: attribute) {
+        case 5:
+            return "Very high lately"
+        case 4:
+            return "High lately"
+        case 3:
+            return "Okay lately"
+        case 2:
+            return "Low lately"
+        default:
+            return "Very low lately"
+        }
+    }
+
     private func recomputedSnapshot(
         from snapshot: AttributeStateSnapshot,
         checkIns: [CheckInSnapshot],
