@@ -424,8 +424,8 @@ final class StatsManager {
         let displayName = monthStart.formatted(.dateTime.month(.wide).year())
 
         var cells: [AdherenceDayCell] = []
-        var numerator = 0
-        var denominator = 0
+        var followedEligibleDaysBeforeToday = 0
+        var eligibleDaysBeforeToday = 0
 
         for _ in 0..<leadingPadding {
             cells.append(AdherenceDayCell(
@@ -444,13 +444,14 @@ final class StatsManager {
             let isToday = calendar.isDate(dayStart, inSameDayAs: today)
             let committedForDay = committedDays(on: dayStart, history: history, calendar: calendar)
             let isCommitted = committedForDay?.contains(date: dayStart) ?? false
+            let isEligibleCompletedDay = isCommitted && !isBeforePlan && !isFuture && !isToday
 
-            if isCommitted {
-                denominator += 1
+            if isEligibleCompletedDay {
+                eligibleDaysBeforeToday += 1
                 if let adherence = checkIn?.planAdherence,
                    checkIn?.wasPlanDay == true,
                    adherence == .yes || adherence == .partially {
-                    numerator += 1
+                    followedEligibleDaysBeforeToday += 1
                 }
             }
 
@@ -487,14 +488,16 @@ final class StatsManager {
             ))
         }
 
-        let percentage = denominator > 0 ? Int((Double(numerator) / Double(denominator)) * 100) : 0
+        let percentage = eligibleDaysBeforeToday > 0
+            ? Int((Double(followedEligibleDaysBeforeToday) / Double(eligibleDaysBeforeToday)) * 100)
+            : 0
 
         return AdherenceMonth(
             id: monthId,
             displayName: displayName,
             cells: cells,
-            numerator: numerator,
-            denominator: denominator,
+            numerator: followedEligibleDaysBeforeToday,
+            denominator: eligibleDaysBeforeToday,
             percentage: percentage
         )
     }
