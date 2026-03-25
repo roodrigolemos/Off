@@ -1,5 +1,5 @@
 //
-//  InsightsView.swift
+//  YouView.swift
 //  Off
 //
 //  Created by Rodrigo Lemos on 11/02/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Charts
 
-struct InsightsView: View {
+struct YouView: View {
 
     @Environment(AttributeManager.self) var attributeManager
     @Environment(PlanManager.self) var planManager
@@ -38,16 +38,16 @@ struct InsightsView: View {
 }
 
 #Preview {
-    InsightsView()
+    YouView()
         .withPreviewManagers()
 }
 
 // MARK: - Sections
 
-private extension InsightsView {
+private extension YouView {
 
     var headerSection: some View {
-        Text("Insights")
+        Text("You")
             .font(.system(size: 38, weight: .heavy))
             .foregroundStyle(Color.offTextPrimary)
             .tracking(-0.5)
@@ -100,7 +100,7 @@ private extension InsightsView {
 
 // MARK: - Helper Views
 
-private extension InsightsView {
+private extension YouView {
 
     var trendChartsGrid: some View {
         return LazyVGrid(columns: [
@@ -602,7 +602,7 @@ private extension InsightsView {
 
 // MARK: - Helpers
 
-private extension InsightsView {
+private extension YouView {
 
     func stateDots(dotCount: Int) -> some View {
         return HStack(spacing: 4) {
