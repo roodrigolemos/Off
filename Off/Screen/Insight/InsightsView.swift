@@ -28,7 +28,6 @@ struct InsightsView: View {
                         attributeTrendsSection
                         planAdherenceSection
                         urgePatternSection
-                        checkInHistorySection
                     }
                     .padding(.bottom, 48)
                 }
@@ -97,20 +96,6 @@ private extension InsightsView {
         .padding(.horizontal, 24)
         .padding(.bottom, 36)
     }
-
-    var checkInHistorySection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("PREVIOUS WEEKS")
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(Color.offTextMuted)
-                .tracking(1.6)
-
-            previousWeeksStack
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 36)
-    }
-
 }
 
 // MARK: - Helper Views
@@ -613,47 +598,6 @@ private extension InsightsView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-
-    var previousWeeksStack: some View {
-        VStack(spacing: 12) {
-            previousWeekRow(dateRange: "Jan 13 – Jan 19", checkIns: "5/7 check-ins")
-            previousWeekRow(dateRange: "Jan 6 – Jan 12", checkIns: "6/7 check-ins")
-            previousWeekRow(dateRange: "Dec 30 – Jan 5", checkIns: "4/7 check-ins")
-        }
-    }
-
-    func previousWeekRow(dateRange: String, checkIns: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.offBackgroundSecondary)
-
-            HStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(dateRange)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.offTextPrimary)
-
-                    Text(checkIns)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.offTextSecondary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.offTextMuted)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 20)
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.offStroke, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-    }
-
 }
 
 // MARK: - Helpers
