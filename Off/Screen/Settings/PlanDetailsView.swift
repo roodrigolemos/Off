@@ -11,7 +11,6 @@ struct PlanDetailsView: View {
     @Environment(PlanManager.self) var planManager
     @Environment(CheckInManager.self) var checkInManager
     @Environment(UrgeManager.self) var urgeManager
-    @Environment(InsightManager.self) var insightManager
     @Environment(StatsManager.self) var statsManager
     @Environment(ScreenTimeManager.self) var screenTimeManager
 
@@ -311,10 +310,6 @@ private extension PlanDetailsView {
             activePlan: planManager.activePlan,
             planHistory: planManager.planHistory,
             interventions: urgeManager.interventions
-        )
-        insightManager.checkWeeklyInsightAvailability(
-            plan: planManager.activePlan,
-            checkIns: checkInManager.checkIns
         )
     }
 

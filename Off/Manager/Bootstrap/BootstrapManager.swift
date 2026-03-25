@@ -16,7 +16,6 @@ final class BootstrapManager {
         planManager: PlanManager,
         checkInManager: CheckInManager,
         attributeManager: AttributeManager,
-        insightManager: InsightManager,
         urgeManager: UrgeManager,
         statsManager: StatsManager
     ) {
@@ -27,7 +26,6 @@ final class BootstrapManager {
         checkInManager.loadCheckIns()
         urgeManager.loadInterventions()
         attributeManager.refreshState(checkIns: checkInManager.checkIns)
-        insightManager.checkWeeklyInsightAvailability(plan: planManager.activePlan, checkIns: checkInManager.checkIns)
         statsManager.recalculate(
             checkIns: checkInManager.checkIns,
             activePlan: planManager.activePlan,
@@ -43,7 +41,6 @@ final class BootstrapManager {
         planManager: PlanManager,
         checkInManager: CheckInManager,
         attributeManager: AttributeManager,
-        insightManager: InsightManager,
         urgeManager: UrgeManager,
         statsManager: StatsManager
     ) {
@@ -54,7 +51,6 @@ final class BootstrapManager {
         checkInManager.loadCheckIns()
         urgeManager.loadInterventions()
         attributeManager.refreshState(checkIns: checkInManager.checkIns)
-        insightManager.checkWeeklyInsightAvailability(plan: planManager.activePlan, checkIns: checkInManager.checkIns)
         statsManager.recalculate(
             checkIns: checkInManager.checkIns,
             activePlan: planManager.activePlan,

@@ -18,7 +18,6 @@ struct PreviewContainer {
     static let planManager = PlanManager(store: MockPlanStore())
     static let checkInManager = CheckInManager(store: MockCheckInStore())
     static let urgeManager = UrgeManager(store: MockUrgeStore())
-    static let insightManager = InsightManager(store: MockInsightStore(), aiService: MockAIService())
 
     static func bootstrap() {
         bootstrapManager.bootstrap(
@@ -27,7 +26,6 @@ struct PreviewContainer {
             planManager: planManager,
             checkInManager: checkInManager,
             attributeManager: attributeManager,
-            insightManager: insightManager,
             urgeManager: urgeManager,
             statsManager: statsManager
         )
@@ -45,7 +43,6 @@ extension View {
             .environment(PreviewContainer.planManager)
             .environment(PreviewContainer.checkInManager)
             .environment(PreviewContainer.urgeManager)
-            .environment(PreviewContainer.insightManager)
             .environment(PreviewContainer.statsManager)
             .environment(PreviewContainer.usageManager)
             .environment(PreviewContainer.bootstrapManager)

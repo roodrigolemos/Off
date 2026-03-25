@@ -25,7 +25,6 @@ struct OffApp: App {
     @State private var planManager: PlanManager
     @State private var checkInManager: CheckInManager
     @State private var urgeManager: UrgeManager
-    @State private var insightManager: InsightManager
     @State private var statsManager: StatsManager
     @State private var usageManager: UsageManager
     @State private var bootstrapManager: BootstrapManager
@@ -37,7 +36,7 @@ struct OffApp: App {
 
     init() {
         do {
-            let schema = Schema([AttributeState.self, Plan.self, CheckIn.self, UrgeIntervention.self, WeeklyInsight.self])
+            let schema = Schema([AttributeState.self, Plan.self, CheckIn.self, UrgeIntervention.self])
             let modelConfig = ModelConfiguration(swiftDataContainerName, schema: schema)
             container = try ModelContainer(for: schema, configurations: modelConfig)
         } catch {
@@ -67,7 +66,6 @@ struct OffApp: App {
             _planManager = State(initialValue: PlanManager(store: MockPlanStore()))
             _checkInManager = State(initialValue: CheckInManager(store: MockCheckInStore()))
             _urgeManager = State(initialValue: UrgeManager(store: MockUrgeStore()))
-            _insightManager = State(initialValue: InsightManager(store: MockInsightStore(), aiService: MockAIService()))
         case .dev, .prod:
             _screenTimeManager = State(initialValue: ScreenTimeManager(
                 store: AppGroupActivitySelectionStore(defaults: userDefaults)
@@ -84,10 +82,6 @@ struct OffApp: App {
             _urgeManager = State(initialValue: UrgeManager(
                 store: SwiftDataUrgeStore(context: container.mainContext)
             ))
-            _insightManager = State(initialValue: InsightManager(
-                store: SwiftDataInsightStore(context: container.mainContext),
-                aiService: ClaudeAIService()
-            ))
         }
     }
 
@@ -102,7 +96,6 @@ struct OffApp: App {
                 .environment(planManager)
                 .environment(checkInManager)
                 .environment(urgeManager)
-                .environment(insightManager)
                 .environment(statsManager)
                 .environment(usageManager)
                 .environment(bootstrapManager)
@@ -113,7 +106,6 @@ struct OffApp: App {
                         planManager: planManager,
                         checkInManager: checkInManager,
                         attributeManager: attributeManager,
-                        insightManager: insightManager,
                         urgeManager: urgeManager,
                         statsManager: statsManager
                     )
@@ -126,7 +118,6 @@ struct OffApp: App {
                         planManager: planManager,
                         checkInManager: checkInManager,
                         attributeManager: attributeManager,
-                        insightManager: insightManager,
                         urgeManager: urgeManager,
                         statsManager: statsManager
                     )

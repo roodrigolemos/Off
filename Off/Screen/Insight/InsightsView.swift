@@ -15,7 +15,6 @@ struct InsightsView: View {
     @Environment(CheckInManager.self) var checkInManager
     @Environment(StatsManager.self) var statsManager
 
-    @State private var showArchive: Bool = false
     @State private var selectedMonthIndex: Int = 0
 
     var body: some View {
@@ -29,7 +28,6 @@ struct InsightsView: View {
                         attributeTrendsSection
                         planAdherenceSection
                         urgePatternSection
-                        weeklyFeedbackSection
                         checkInHistorySection
                     }
                     .padding(.bottom, 48)
@@ -95,22 +93,6 @@ private extension InsightsView {
                 .tracking(1.6)
 
             urgePatternCard
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 36)
-    }
-
-    var weeklyFeedbackSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("FEEDBACKS")
-                .font(.system(size: 12, weight: .heavy))
-                .foregroundStyle(Color.offTextMuted)
-                .tracking(1.6)
-
-            weeklyFeedbackCard
-            if showArchive {
-                weeklyFeedbackArchive
-            }
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 36)
@@ -630,111 +612,6 @@ private extension InsightsView {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    var weeklyFeedbackCard: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.offBackgroundSecondary)
-
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.offAccentSoft.opacity(0.15),
-                            Color.clear,
-                            Color.offAccent.opacity(0.03)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 8) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.offAccent.opacity(0.12))
-                            .frame(width: 28, height: 28)
-
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.offAccent)
-                    }
-
-                    Text("THIS WEEK")
-                        .font(.system(size: 11, weight: .heavy))
-                        .foregroundStyle(Color.offAccent)
-                        .tracking(1.4)
-                }
-
-                Text("Calm showed up more than low moments. You're building something real here.")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Color.offTextPrimary)
-                    .lineSpacing(2)
-
-                Button {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showArchive.toggle()
-                    }
-                } label: {
-                    Text("View past weeks →")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color.offAccent)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(24)
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.offStroke, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-    }
-
-    var weeklyFeedbackArchive: some View {
-        VStack(spacing: 12) {
-            archiveWeekCard(
-                dateRange: "Jan 13 – Jan 19",
-                insight: "You started noticing urges earlier — that's awareness growing."
-            )
-            archiveWeekCard(
-                dateRange: "Jan 6 – Jan 12",
-                insight: "Focus improved on days you followed the evening plan."
-            )
-            archiveWeekCard(
-                dateRange: "Dec 30 – Jan 5",
-                insight: "First full week of check-ins. Consistency is the foundation."
-            )
-        }
-        .transition(.opacity.combined(with: .move(edge: .top)))
-    }
-
-    func archiveWeekCard(dateRange: String, insight: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color.offBackgroundSecondary)
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text(dateRange.uppercased())
-                    .font(.system(size: 11, weight: .heavy))
-                    .foregroundStyle(Color.offTextMuted)
-                    .tracking(1.4)
-
-                Text(insight)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.offTextSecondary)
-                    .lineSpacing(2)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(20)
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.offStroke, lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 
     var previousWeeksStack: some View {

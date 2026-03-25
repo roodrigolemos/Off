@@ -12,12 +12,10 @@ struct HomeView: View {
     @Environment(PlanManager.self) var planManager
     @Environment(CheckInManager.self) var checkInManager
     @Environment(UrgeManager.self) var urgeManager
-    @Environment(InsightManager.self) var insightManager
     @Environment(StatsManager.self) var statsManager
 
     @State private var showCheckIn = false
     @State private var showUrgeIntervention = false
-    @State private var showWeeklyInsight = false
     @State private var isPlanCardFlipped = false
 
     var body: some View {
@@ -45,10 +43,6 @@ struct HomeView: View {
                     planHistory: planManager.planHistory,
                     interventions: urgeManager.interventions
                 )
-                insightManager.checkWeeklyInsightAvailability(
-                    plan: planManager.activePlan,
-                    checkIns: checkInManager.checkIns
-                )
             }) {
                 CheckInView()
             }
@@ -62,11 +56,6 @@ struct HomeView: View {
                 )
             }) {
                 UrgeInterventionView()
-            }
-            .sheet(isPresented: $showWeeklyInsight, onDismiss: {
-                insightManager.markAsViewed()
-            }) {
-                WeeklyInsightDetailView()
             }
             .animation(.easeInOut, value: checkInManager.hasCheckedInToday)
             .toolbar {
@@ -131,8 +120,6 @@ private extension HomeView {
             }
 
             thisWeekCard
-
-            weekInsightCard
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 36)
@@ -530,128 +517,6 @@ private extension HomeView {
                 .stroke(Color.offStroke, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-    }
-
-    var weekInsightCard: some View {
-        Group {
-            switch insightManager.weeklyInsightState {
-            case .notYetAvailable:
-                insightCardContent(
-                    iconName: "sparkles",
-                    iconColor: Color.offTextMuted,
-                    title: "First insight coming Monday",
-                    subtitle: "Keep checking in this week",
-                    showArrow: false,
-                    tappable: false
-                )
-
-            case .ready:
-                insightCardContent(
-                    iconName: "sparkles",
-                    iconColor: Color.offAccent,
-                    title: "Your weekly insight is ready",
-                    subtitle: "Tap to view your week summary",
-                    showArrow: true,
-                    tappable: true
-                )
-
-            case .viewed:
-                insightCardContent(
-                    iconName: "checkmark.circle.fill",
-                    iconColor: Color.offSuccess,
-                    title: "See you next Monday",
-                    subtitle: "Tap to view again",
-                    showArrow: true,
-                    tappable: true
-                )
-            }
-        }
-    }
-
-    func insightCardContent(
-        iconName: String,
-        iconColor: Color,
-        title: String,
-        subtitle: String,
-        showArrow: Bool,
-        tappable: Bool
-    ) -> some View {
-        Button {
-            guard tappable else { return }
-            showWeeklyInsight = true
-        } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.offBackgroundSecondary)
-
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                iconColor.opacity(0.15),
-                                Color.clear,
-                                iconColor.opacity(0.03)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-
-                HStack(spacing: 18) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 8) {
-                            ZStack {
-                                Circle()
-                                    .fill(iconColor.opacity(0.12))
-                                    .frame(width: 28, height: 28)
-
-                                Image(systemName: iconName)
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(iconColor)
-                            }
-
-                            Text("INSIGHT")
-                                .font(.system(size: 11, weight: .heavy))
-                                .foregroundStyle(iconColor)
-                                .tracking(1.4)
-                        }
-
-                        Text(title)
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundStyle(Color.offTextPrimary)
-                            .lineLimit(2)
-                            .lineSpacing(2)
-
-                        Text(subtitle)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.offTextSecondary)
-                            .tracking(0.2)
-                    }
-
-                    Spacer(minLength: 16)
-
-                    if showArrow {
-                        ZStack {
-                            Circle()
-                                .fill(iconColor.opacity(0.08))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "arrow.up.forward")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(iconColor)
-                        }
-                    }
-                }
-                .padding(24)
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.offStroke, lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
-        }
-        .buttonStyle(.plain)
-        .disabled(!tappable)
     }
 
     func dayDot(label: String, state: DayAdherenceState) -> some View {
