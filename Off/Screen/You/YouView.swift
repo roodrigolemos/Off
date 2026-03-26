@@ -33,6 +33,9 @@ struct YouView: View {
                 }
                 .scrollIndicators(.hidden)
             }
+            .navigationDestination(for: Attribute.self) { attribute in
+                AttributeDetailView(attribute: attribute)
+            }
         }
     }
 }
@@ -108,12 +111,15 @@ private extension YouView {
             GridItem(.flexible(), spacing: 14)
         ], spacing: 14) {
             ForEach(Attribute.allCases, id: \.self) { attribute in
-                trendChartCard(
-                    attribute: attribute,
-                    dotCount: attributeManager.dotCount(for: attribute),
-                    stateLabel: attributeManager.stateLabel(for: attribute),
-                    microTrend: attributeManager.microTrend(for: attribute)
-                )
+                NavigationLink(value: attribute) {
+                    trendChartCard(
+                        attribute: attribute,
+                        dotCount: attributeManager.dotCount(for: attribute),
+                        stateLabel: attributeManager.stateLabel(for: attribute),
+                        microTrend: attributeManager.microTrend(for: attribute)
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }

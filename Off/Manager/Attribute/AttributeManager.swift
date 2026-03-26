@@ -103,7 +103,26 @@ final class AttributeManager {
     }
 
     func stateLabel(for attribute: Attribute) -> String {
-        switch dotCount(for: attribute) {
+        stateLabel(forState: snapshot?.currentStates[attribute] ?? 0)
+    }
+
+    func dotCount(forState state: Double) -> Int {
+        switch state {
+        case ...(-3.0):
+            return 1
+        case -3.0..<(-1.0):
+            return 2
+        case -1.0...1.0:
+            return 3
+        case 1.0..<3.0:
+            return 4
+        default:
+            return 5
+        }
+    }
+
+    func stateLabel(forState state: Double) -> String {
+        switch dotCount(forState: state) {
         case 5:
             return "Very high lately"
         case 4:
@@ -114,6 +133,46 @@ final class AttributeManager {
             return "Low lately"
         default:
             return "Very low lately"
+        }
+    }
+
+    func historyPoints(
+        for attribute: Attribute,
+        days: Int = 7,
+        now: Date = .now
+    ) -> [AttributeHistoryPoint] {
+        guard days > 0, let snapshot, let baselineState = snapshot.baselineStates[attribute] else {
+            return []
+        }
+
+        let calendar = Calendar.current
+        let endDay = calendar.startOfDay(for: now)
+        let latestCheckInsByDay = latestCheckInsByDay(from: latestCheckIns, initializedAt: snapshot.initializedAt)
+        let initializedDay = calendar.startOfDay(for: snapshot.initializedAt)
+        let requestedDays = historyDays(endingOn: endDay, count: days, calendar: calendar)
+
+        var reconstructedStates = snapshot.baselineStates
+        var cursor = initializedDay
+
+        return requestedDays.map { day in
+            if day < initializedDay {
+                return AttributeHistoryPoint(date: day, stateValue: baselineState.clamped(to: stateRange))
+            }
+
+            while cursor <= day {
+                let dayCheckIn = latestCheckInsByDay[cursor]
+                reconstructedStates = evolvedStates(
+                    from: reconstructedStates,
+                    checkIn: dayCheckIn,
+                    isInitializationDay: calendar.isDate(cursor, inSameDayAs: initializedDay)
+                )
+
+                guard let nextDay = calendar.date(byAdding: .day, value: 1, to: cursor) else { break }
+                cursor = nextDay
+            }
+
+            let stateValue = reconstructedStates[attribute] ?? baselineState
+            return AttributeHistoryPoint(date: day, stateValue: stateValue.clamped(to: stateRange))
         }
     }
 
@@ -146,21 +205,16 @@ final class AttributeManager {
 
         var currentStates = snapshot.baselineStates
         var day = startDay
-        var isFirstDay = true
 
-        // Recompute from the onboarding baseline so decay and daily updates are applied exactly once per day.
+        // Recompute from the onboarding baseline so each calendar day contributes exactly once.
         while day <= endDay {
-            if !isFirstDay || latestCheckInsByDay[day] != nil {
-                let dayCheckIn = latestCheckInsByDay[day]
+            let dayCheckIn = latestCheckInsByDay[day]
+            currentStates = evolvedStates(
+                from: currentStates,
+                checkIn: dayCheckIn,
+                isInitializationDay: calendar.isDate(day, inSameDayAs: startDay)
+            )
 
-                for attribute in Attribute.allCases {
-                    let previousState = currentStates[attribute] ?? 0
-                    let input = inputValue(for: attribute, checkIn: dayCheckIn)
-                    currentStates[attribute] = nextState(from: previousState, input: input)
-                }
-            }
-
-            isFirstDay = false
             guard let nextDay = calendar.date(byAdding: .day, value: 1, to: day) else { break }
             day = nextDay
         }
@@ -173,11 +227,13 @@ final class AttributeManager {
         initializedAt: Date
     ) -> [Date: CheckInSnapshot] {
         let calendar = Calendar.current
+        let initializedDay = calendar.startOfDay(for: initializedAt)
         var groupedCheckIns: [Date: CheckInSnapshot] = [:]
 
         // When a day is edited more than once, only the latest check-in should affect that day's state.
-        for checkIn in checkIns where checkIn.date >= initializedAt {
+        for checkIn in checkIns {
             let day = calendar.startOfDay(for: checkIn.date)
+            guard day >= initializedDay else { continue }
             let existing = groupedCheckIns[day]
 
             if existing == nil || checkIn.date > existing?.date ?? .distantPast {
@@ -203,23 +259,41 @@ final class AttributeManager {
         }
     }
 
-    private func nextState(from previousState: Double, input: Double) -> Double {
-        (previousState + input - (dailyDecay * sign(of: previousState))).clamped(to: stateRange)
+    private func historyDays(endingOn endDay: Date, count: Int, calendar: Calendar) -> [Date] {
+        (0..<count)
+            .compactMap { offset in
+                calendar.date(byAdding: .day, value: -(count - 1 - offset), to: endDay)
+            }
     }
 
-    private func dotCount(forState state: Double) -> Int {
-        switch state {
-        case ...(-3.0):
-            return 1
-        case -3.0..<(-1.0):
-            return 2
-        case -1.0...1.0:
-            return 3
-        case 1.0..<3.0:
-            return 4
-        default:
-            return 5
+    private func evolvedStates(
+        from previousStates: [Attribute: Double],
+        checkIn: CheckInSnapshot?,
+        isInitializationDay: Bool
+    ) -> [Attribute: Double] {
+        var nextStates = previousStates
+
+        for attribute in Attribute.allCases {
+            let previousState = previousStates[attribute] ?? 0
+            let input = inputValue(for: attribute, checkIn: checkIn)
+
+            if isInitializationDay {
+                nextStates[attribute] = initializedState(from: previousState, input: input, hasCheckIn: checkIn != nil)
+            } else {
+                nextStates[attribute] = nextState(from: previousState, input: input)
+            }
         }
+
+        return nextStates
+    }
+
+    private func initializedState(from baselineState: Double, input: Double, hasCheckIn: Bool) -> Double {
+        guard hasCheckIn else { return baselineState.clamped(to: stateRange) }
+        return (baselineState + input).clamped(to: stateRange)
+    }
+
+    private func nextState(from previousState: Double, input: Double) -> Double {
+        (previousState + input - (dailyDecay * sign(of: previousState))).clamped(to: stateRange)
     }
 
     private func sign(of value: Double) -> Double {
