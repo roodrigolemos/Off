@@ -35,6 +35,10 @@ final class CheckInManager {
     func submitCheckIn(
         _ snapshot: CheckInSnapshot,
         attributeManager: AttributeManager,
+        statsManager: StatsManager,
+        activePlan: PlanSnapshot?,
+        planHistory: [PlanSnapshot],
+        interventions: [UrgeSnapshot],
         now: Date = .now
     ) {
         do {
@@ -46,6 +50,12 @@ final class CheckInManager {
                 self.error = .saveFailed
                 return
             }
+            statsManager.recalculate(
+                checkIns: checkIns,
+                activePlan: activePlan,
+                planHistory: planHistory,
+                interventions: interventions
+            )
             error = nil
         } catch {
             self.error = .saveFailed

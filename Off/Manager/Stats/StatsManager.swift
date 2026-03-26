@@ -424,8 +424,8 @@ final class StatsManager {
         let displayName = monthStart.formatted(.dateTime.month(.wide).year())
 
         var cells: [AdherenceDayCell] = []
-        var followedEligibleDaysBeforeToday = 0
-        var eligibleDaysBeforeToday = 0
+        var followedEligibleDays = 0
+        var eligibleDays = 0
 
         for _ in 0..<leadingPadding {
             cells.append(AdherenceDayCell(
@@ -444,14 +444,18 @@ final class StatsManager {
             let isToday = calendar.isDate(dayStart, inSameDayAs: today)
             let committedForDay = committedDays(on: dayStart, history: history, calendar: calendar)
             let isCommitted = committedForDay?.contains(date: dayStart) ?? false
-            let isEligibleCompletedDay = isCommitted && !isBeforePlan && !isFuture && !isToday
+            let hasCompletedCheckIn = checkIn != nil
+            let isEligiblePlanDay = isCommitted
+                && !isBeforePlan
+                && !isFuture
+                && (!isToday || hasCompletedCheckIn)
 
-            if isEligibleCompletedDay {
-                eligibleDaysBeforeToday += 1
+            if isEligiblePlanDay {
+                eligibleDays += 1
                 if let adherence = checkIn?.planAdherence,
                    checkIn?.wasPlanDay == true,
                    adherence == .yes || adherence == .partially {
-                    followedEligibleDaysBeforeToday += 1
+                    followedEligibleDays += 1
                 }
             }
 
@@ -488,16 +492,16 @@ final class StatsManager {
             ))
         }
 
-        let percentage = eligibleDaysBeforeToday > 0
-            ? Int((Double(followedEligibleDaysBeforeToday) / Double(eligibleDaysBeforeToday)) * 100)
+        let percentage = eligibleDays > 0
+            ? Int((Double(followedEligibleDays) / Double(eligibleDays)) * 100)
             : 0
 
         return AdherenceMonth(
             id: monthId,
             displayName: displayName,
             cells: cells,
-            numerator: followedEligibleDaysBeforeToday,
-            denominator: eligibleDaysBeforeToday,
+            numerator: followedEligibleDays,
+            denominator: eligibleDays,
             percentage: percentage
         )
     }

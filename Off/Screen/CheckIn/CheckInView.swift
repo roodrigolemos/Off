@@ -13,6 +13,8 @@ struct CheckInView: View {
     @Environment(CheckInManager.self) var checkInManager
     @Environment(AttributeManager.self) var attributeManager
     @Environment(PlanManager.self) var planManager
+    @Environment(UrgeManager.self) var urgeManager
+    @Environment(StatsManager.self) var statsManager
 
     @State private var focus: AttributeRating?
     @State private var control: ControlRating?
@@ -197,7 +199,14 @@ private extension CheckInView {
                 planAdherence: planAdherence,
                 wasPlanDay: isPlanDay
             )
-            checkInManager.submitCheckIn(snapshot, attributeManager: attributeManager)
+            checkInManager.submitCheckIn(
+                snapshot,
+                attributeManager: attributeManager,
+                statsManager: statsManager,
+                activePlan: planManager.activePlan,
+                planHistory: planManager.planHistory,
+                interventions: urgeManager.interventions
+            )
 
             if checkInManager.error == nil {
                 dismiss()
